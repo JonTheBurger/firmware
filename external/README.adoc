@@ -1,0 +1,19 @@
+= External Vendored Dependencies
+
+This directory contains source code for git submodules and other non-project code. 3rd-party dependencies tend to
+behave poorly with their dependencies, so we often have to patch around them. Each directory contains the external code
+verbatim and an associated `.cmake` file used to incorporate the file into the project. If a dependency is well
+behaved, this is as simple as an `add_subdirectory(...)`. More complex dependencies may also require a `.patch`. Each
+dependency is listed below.
+
+== stm32f429i-disc1
+
+https://www.st.com/en/development-tools/stm32cubemx.html[STM32CubeMX] generated project. The generated `CMakeLists.txt`
+attempts to modify a target of name `${CMAKE_PROJECT_NAME}` directly. We instead make a `stm32f429i-disc1` library
+target and set the variable temporarily to create a valid library target. We also abuse the `// USER CODE` sections to
+replace `main()` with `stm32f429i_disc1_init()`, and remote its infinite loop. Grep the directory for
+`// MY_CUSTOM_EDIT` comments.
+
+=== Targets
+
+* `stm32f429i-disc1`

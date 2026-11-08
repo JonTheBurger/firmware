@@ -1,0 +1,48 @@
+[build-system]
+requires = ["uv_build<1.0"]
+build-backend = "uv_build"
+
+[project]
+name = "project"
+version = "2026.11.8.0"
+description = "Project utilities"
+requires-python = ">=3.14"
+dependencies = [
+  "cmake>=4.4",
+  "gersemi",
+  "pyocd",
+]
+
+[project.scripts]
+project = "project.cli:main"
+
+[dependency-groups]
+dev = [
+  "ruff"
+]
+
+[tool.mypy]
+cache_dir = ".cache/mypy"
+show_column_numbers = true
+strict = true
+
+[tool.pyrefly]
+check-unannotated-defs = true
+
+[tool.ruff]
+cache-dir = ".cache/ruff"
+line-length = 120
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = [
+  "CPY001",  # copyright notice at top of file
+  "D",       # docstrings
+  "COM812",  # trailing comma conflicts with the formatter
+  "E501",    # line too long; formatter fixes this
+  "EM101",   # Exception must not use a string literal, assign to a variable first
+  "EM102",   # Exception mustnot use an f-string literal, assign to a variable first
+  "TRY003",  # Avoid specifying long messages outside the exception class
+  "T201",    # print found
+  "S603",    # `subprocess` call: check for execution of untrusted input
+]

@@ -1,0 +1,30 @@
+= Firmware
+
+An example application running on the stm32f429zi-disc1.
+
+== Setup
+
+[source,bash]
+----
+uv sync --all-extras --all-groups
+./.venv/bin/activate
+pyocd pack update
+pyocd pack install stm32f429zi
+----
+
+== Build
+
+[source,bash]
+----
+cmake -S. -Bbuild --toolchain tools/cmake/toolchain/firmware.cmake -DCMAKE_BUILD_TYPE=Debug && cmake --build build
+----
+
+== Deploy
+
+[source,bash]
+----
+# Flash
+pyocd flash -t stm32f429xi build/firmware.main.elf
+# Debug
+pyocd gdbserver -t stm32f429zi build/firmware.main.elf
+----

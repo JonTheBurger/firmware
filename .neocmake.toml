@@ -1,0 +1,9 @@
+command_case = "lower_case"
+line_max_words =  120
+
+[format]
+program = "gersemi"
+args = ["--indent", "2", "-"]
+
+[included_cmakes]
+glob_rules = ["tools/cmake/modules/*.cmake"]
