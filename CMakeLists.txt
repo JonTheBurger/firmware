@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 4.3)
 project(firmware LANGUAGES C CXX ASM)
-# set(CMAKE_EXECUTABLE_SUFFIX .elf)
 
 add_subdirectory(external EXCLUDE_FROM_ALL)
 add_executable(firmware.main "src/firmware/main.cxx")

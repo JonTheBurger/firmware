@@ -1,5 +1,50 @@
+from pathlib import Path
+
+from typer import Context, Option, Typer
+
+import project.core.runtime
+from project.cli.commands.fix import fix
+from project.cli.commands.fmt import fmt
+from project.cli.commands.lint import lint
+from project.cli.common import Common
+from project.core.error.user import UserError
+
+app = Typer(
+    context_settings={"help_option_names": ["-h", "--help"]},
+    no_args_is_help=True,
+    suggest_commands=True,
+)
+app.command()(fmt)
+app.command()(fix)
+app.command()(lint)
+
+
+def help_for(field: str) -> str:
+    description = Common.model_fields[field].description
+    if not description:
+        raise ValueError("Missing common CLI field description!")
+    return description
+
+
+@app.callback()
+def cli(
+    ctx: Context,
+    *,
+    verbose: int = Option(0, "--verbose", "-v", count=True, envvar="VERBOSE", help=help_for("verbose")),
+    config: Path | None = Option(None, "--config", "-c", exists=True, dir_okay=False, help=help_for("config")),  # noqa: B008
+    jobs: int = Option(0, "--jobs", "-j", help=help_for("jobs")),
+) -> None:
+    """"""
+    ctx.obj = Common.model_validate(locals(), strict=True)
+    del verbose, config, jobs
+
+
 def main() -> None:
-    pass
+    project.core.runtime.setup()
+    try:
+        app()
+    except UserError as error:
+        print(error)
 
 
 if __name__ == "__main__":
