@@ -2,9 +2,12 @@
 
 namespace firmware::hal {
 
-enum class Led { Green, Red };
+enum class Led {
+  Green,
+  Red
+};
 
 void led_init();
 void led_toggle(Led led);
 
-}
+}  // namespace firmware::hal

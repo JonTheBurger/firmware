@@ -1,13 +1,13 @@
-from collections.abc import Collection
+from collections import defaultdict
 from enum import Enum
 from typing import TYPE_CHECKING, Any, Self
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from project.tools.git import Git
+from project.tool.git import Git
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
+    from collections.abc import Collection, Iterable, Mapping
     from pathlib import Path
 
 
@@ -28,10 +28,6 @@ class _FileTypeInfo(BaseModel):
         return data
 
 
-AllFileTypes = _FileTypeInfo(name=":all", extensions=[""])
-"""Matches everything."""
-
-
 class FileType(Enum):
     """File types known by this project.
 
@@ -48,6 +44,7 @@ class FileType(Enum):
     C = _FileTypeInfo(name=":c", subtypes=[C_HEADER, C_SOURCE])
     CMAKE = _FileTypeInfo(name=":cmake", extensions=["CMakeLists.txt", ".cmake"])
     PY = _FileTypeInfo(name=":py", extensions=[".py"])
+    ALL = _FileTypeInfo(name=":all", extensions=[""])
 
     @classmethod
     def from_name(cls, name: str) -> Self | None:
@@ -58,21 +55,45 @@ class FileType(Enum):
             return None
 
     @classmethod
-    def detect(cls, path: Path | str) -> FileType | None:
+    def detect(cls, path: Path | str, *, subtypes: bool = False) -> FileType | None:
         """Finds the most specific known file type that matches path.
 
-        Consider ``FileType.detect(path) or AllFileTypes``
+        Consider ``FileType.detect(path) or FileType.ALL``
 
         Args:
             path: Path to deduce.
+            subtypes: If True, the most specific matching subtype will be returned, othewise use the general subtype.
 
         Returns:
             The matching file type, or None if the type was not known.
         """
         for filetype in cls:
+            if filetype == FileType.ALL:
+                continue
+            if not subtypes and "." in filetype.name:
+                continue
             if filetype.matches(path):
                 return filetype
         return None
+
+    @classmethod
+    def categorize(cls, files: Iterable[Path], *, subtypes: bool = False) -> Mapping[FileType, Collection[Path]]:
+        """Detects the filetypes for several files at once and categorizes them.
+
+        Args:
+            files: Files to deduce.
+            subtypes: If True, the most specific matching subtype will be returned, othewise use the general subtype.
+
+        Returns:
+            A mapping files by ``FileType``. Unrecognized files are placed under ``FileType.ALL``.
+        """
+        categorized: defaultdict[FileType, list[Path]] = defaultdict(list)
+
+        for file in files:
+            ft = cls.detect(file, subtypes=subtypes) or FileType.ALL
+            categorized[ft].append(file)
+
+        return categorized
 
     def __str__(self) -> str:
         """Colon alias for this file type, for example ``:cxx.header``."""
@@ -152,5 +173,3 @@ def resolve_files(paths: Collection[Path]) -> Iterable[Path]:
             yield from unseen(git.files(matching=[str(path / "*")]))
         elif ft := FileType.from_name(str(path)):
             yield from unseen(git.files(matching=ft.globs))
-        elif str(path) == AllFileTypes.name:
-            yield from unseen(git.files())

@@ -4,10 +4,11 @@ from typing import Annotated
 from typer import Context, Option, Typer
 
 import project.core.runtime
-from project.cli.commands.fix import app as fix
-from project.cli.commands.fmt import app as fmt
-from project.cli.commands.lint import app as lint
-from project.cli.common import Common
+from project.cli.args import ProjectPathArgument
+from project.commands.fix import fix
+from project.commands.fmt import fmt
+from project.commands.lint import lint
+from project.core.config import BaseConfig
 from project.core.error.user import UserError
 
 app = Typer(
@@ -15,13 +16,25 @@ app = Typer(
     no_args_is_help=True,
     suggest_commands=True,
 )
-app.add_typer(fmt)
-app.add_typer(fix)
-app.add_typer(lint)
+
+
+@app.command(name="fmt", help=fmt.__doc__)
+def cli_fmt(ctx: Context, files: Annotated[list[Path], ProjectPathArgument]) -> None:
+    fmt(files)
+
+
+@app.command(name="fix", help=fix.__doc__)
+def cli_fix(ctx: Context, files: Annotated[list[Path], ProjectPathArgument]) -> None:
+    fix(files)
+
+
+@app.command(name="lint", help=lint.__doc__)
+def cli_lint(ctx: Context, files: Annotated[list[Path], ProjectPathArgument]) -> None:
+    lint(files)
 
 
 def help_for(field: str) -> str:
-    description = Common.model_fields[field].description
+    description = BaseConfig.model_fields[field].description
     if not description:
         raise ValueError("Missing common CLI field description!")
     return description
@@ -38,7 +51,7 @@ def cli(
     jobs: Annotated[int, Option("--jobs", "-j", help=help_for("jobs"))] = 0,
 ) -> None:
     """"""
-    ctx.obj = Common.model_validate(locals(), strict=True)
+    ctx.obj = BaseConfig.model_validate(locals(), strict=True)
     del verbose, config, jobs
 
 
