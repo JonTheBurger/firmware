@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 from typing import Annotated
 
@@ -10,12 +11,53 @@ from project.commands.fmt import fmt
 from project.commands.lint import lint
 from project.core.config import BaseConfig
 from project.core.error.user import UserError
+from project.system.files import FileType
+
+query_app = Typer(
+    name="query",
+    help="Lookup information about the project",
+    context_settings={"help_option_names": ["-h", "--help"]},
+    no_args_is_help=True,
+    suggest_commands=True,
+)
+
+
+@query_app.command(name="files")
+def cli_query_files(
+    ctx: Context,
+    *,
+    files: Annotated[list[Path], ProjectPathArgument],
+    as_json: Annotated[bool, Option("--json", help="Enable JSON output")] = False,
+) -> None:
+    """Lookup project files."""
+
+    if as_json:
+        delimiter = "  "
+        print("[")
+        for file in files:
+            print(delimiter, end="")
+            print(
+                json.dumps(
+                    {
+                        "path": str(file),
+                        "file_type": str(FileType.detect(file) or FileType.ALL),
+                    }
+                ),
+                end="",
+            )
+            delimiter = ",\n  "
+        print("\n]")
+    else:
+        for file in files:
+            print(str(file))
+
 
 app = Typer(
     context_settings={"help_option_names": ["-h", "--help"]},
     no_args_is_help=True,
     suggest_commands=True,
 )
+app.add_typer(query_app)
 
 
 @app.command(name="fmt", help=fmt.__doc__)
@@ -50,7 +92,7 @@ def cli(
     ] = None,
     jobs: Annotated[int, Option("--jobs", "-j", help=help_for("jobs"))] = 0,
 ) -> None:
-    """"""
+    """Project Development Tool Suite."""
     ctx.obj = BaseConfig.model_validate(locals(), strict=True)
     del verbose, config, jobs
 

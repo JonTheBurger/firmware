@@ -3,7 +3,8 @@ from pathlib import Path
 
 from typer import Argument, Context
 
-from project.system.files import FileType, resolve_files
+from project.commands.query import resolve_files
+from project.system.files import FileType
 
 
 def complete_project_paths(_: Context, incomplete: str) -> list[str]:
@@ -32,5 +33,10 @@ def _resolve_files(paths: list[Path]) -> Iterable[Path]:
 
 
 ProjectPathArgument = Argument(
-    default_factory=list, allow_dash=True, autocompletion=complete_project_paths, callback=_resolve_files
+    help="Files to process. Directories, globs, and file types (:all, :cxx, :py) are accepted. By default, queries git for changed files.",
+    show_default=False,
+    default_factory=list,
+    allow_dash=True,
+    autocompletion=complete_project_paths,
+    callback=_resolve_files,
 )
