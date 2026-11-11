@@ -1,0 +1,156 @@
+from collections.abc import Collection
+from enum import Enum
+from typing import TYPE_CHECKING, Any, Self
+
+from pydantic import BaseModel, ConfigDict, Field, model_validator
+
+from project.tools.git import Git
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+    from pathlib import Path
+
+
+class _FileTypeInfo(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    name: str
+    extensions: frozenset[str] = Field(default_factory=frozenset)
+    subtypes: frozenset[_FileTypeInfo] = Field(default_factory=frozenset)
+
+    @model_validator(mode="before")
+    @classmethod
+    def _inherit_subtype_extensions(cls, data: Any) -> Any:
+        subtypes: Iterable[_FileTypeInfo]
+        if subtypes := data.get("subtypes"):
+            extensions: Iterable[str] = data.get("extensions") or []
+            data["extensions"] = frozenset((*extensions, *(*t.extensions for t in subtypes)))
+        return data
+
+
+AllFileTypes = _FileTypeInfo(name=":all", extensions=[""])
+"""Matches everything."""
+
+
+class FileType(Enum):
+    """File types known by this project.
+
+    These file types are deemed to be relevant for project tooling, such as formatters and code generators.
+    """
+
+    CXX_HEADER_INL = _FileTypeInfo(name=":cxx.header.inl", extensions=[".inl", ".tpp", ".txx"])
+    CXX_HEADER = _FileTypeInfo(name=":cxx.header", extensions=[".hh", ".hpp", ".hxx"], subtypes=[CXX_HEADER_INL])
+    CXX_SOURCE = _FileTypeInfo(name=":cxx.source", extensions=[".cc", ".cpp", ".cxx"])
+    CXX_MODULE = _FileTypeInfo(name=":cxx.module", extensions=[".cppm", ".ccm", ".cxxm", ".ixx"])
+    CXX = _FileTypeInfo(name=":cxx", subtypes=[CXX_HEADER, CXX_SOURCE, CXX_MODULE])
+    C_HEADER = _FileTypeInfo(name=":c.header", extensions=[".h"])
+    C_SOURCE = _FileTypeInfo(name=":c.source", extensions=[".c"])
+    C = _FileTypeInfo(name=":c", subtypes=[C_HEADER, C_SOURCE])
+    CMAKE = _FileTypeInfo(name=":cmake", extensions=["CMakeLists.txt", ".cmake"])
+    PY = _FileTypeInfo(name=":py", extensions=[".py"])
+
+    @classmethod
+    def from_name(cls, name: str) -> Self | None:
+        """Lookup a file type by its colon alias, for example ``:c``."""
+        try:
+            return cls[name.lstrip(":*.").upper().replace(".", "_")]
+        except KeyError:
+            return None
+
+    @classmethod
+    def detect(cls, path: Path | str) -> FileType | None:
+        """Finds the most specific known file type that matches path.
+
+        Consider ``FileType.detect(path) or AllFileTypes``
+
+        Args:
+            path: Path to deduce.
+
+        Returns:
+            The matching file type, or None if the type was not known.
+        """
+        for filetype in cls:
+            if filetype.matches(path):
+                return filetype
+        return None
+
+    def __str__(self) -> str:
+        """Colon alias for this file type, for example ``:cxx.header``."""
+        return self.value.name
+
+    @property
+    def name(self) -> str:
+        """Colon alias for this file type, for example ``:cxx.header``."""
+        return self.value.name
+
+    @property
+    def extensions(self) -> Iterable[str]:
+        """Extensions for this file type starting with a dot, for example ``[".py"]``."""
+        return self.value.extensions
+
+    @property
+    def globs(self) -> Iterable[str]:
+        """Extensions with a star in the front, for example ``["*.c", "*.h"]``"""
+        return (f"*{ext}" for ext in self.value.extensions)
+
+    @property
+    def subtypes(self) -> Iterable[str]:
+        """More specialized sub-type names of this file type, if applicable.
+
+        For example, general ``:cxx`` can be specified in a more granular way with ``:cxx.source`` or ``:cxx.header``.
+        """
+        return (ft.name for ft in self.value.subtypes)
+
+    def matches(self, file: Path | str) -> bool:
+        """Check if a given file name matches this FileType.
+
+        Args:
+            file: Name of file to check.
+
+        Returns:
+            True if the file's extension matches this FileType.
+        """
+        file = str(file)
+        return any(file.endswith(ext) for ext in self.extensions)
+
+    def to_json(self, indent: int | None = None) -> str:
+        """Return JSON representation of this file type.
+
+        Args:
+            indent: Spaces to indent by, None for compact JSON.
+        """
+        return self.value.model_dump_json(indent=indent, exclude_defaults=True)
+
+
+def resolve_files(paths: Collection[Path]) -> Iterable[Path]:
+    """Flattens a list of files, directories, and/or FileTypes into a list of existing files on disk.
+
+    Args:
+        paths: A list of files, directories, or FileType names (packed into a relative path).
+        If empty, files changed since the last git ancestor are returned.
+
+    Returns:
+        Files matching the given paths.
+    """
+    git = Git()
+    if not paths:
+        yield from git.files_changed(from_base="main")
+
+    seen: set[Path] = set()
+
+    def unseen(paths: Iterable[Path]) -> Iterable[Path]:
+        for path in paths:
+            path = path.absolute()  # noqa: PLW2901
+            if path not in seen:
+                seen.add(path)
+                yield path
+
+    for path in paths:
+        if path.is_file():
+            yield from unseen([path])
+        elif path.is_dir():
+            yield from unseen(git.files(matching=[str(path / "*")]))
+        elif ft := FileType.from_name(str(path)):
+            yield from unseen(git.files(matching=ft.globs))
+        elif str(path) == AllFileTypes.name:
+            yield from unseen(git.files())

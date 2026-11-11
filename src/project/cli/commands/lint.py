@@ -1,12 +1,13 @@
-from pathlib import Path
 from typing import Annotated
 
-from typer import Argument, Context, Option, Typer
+from typer import Context, Typer
 
-from project.cli.common import Common, ProjectPathArgument, complete_project_paths
-from project.tools.git import Git
+from project.cli.common import Common, ProjectPathArgument
+
+app = Typer()
 
 
+@app.command()
 def lint(ctx: Context, files: Annotated[list[str], ProjectPathArgument]) -> None:
     common: Common = ctx.obj
 

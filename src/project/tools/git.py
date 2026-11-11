@@ -2,11 +2,11 @@
 import os
 from itertools import chain
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Annotated
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
-from project.host.program import execute
+from project.system.program import execute
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -15,7 +15,9 @@ if TYPE_CHECKING:
 class Git(BaseModel):
     """For interfacing with the project's git repository."""
 
-    def project_files(self, *, matching: Iterable[str] | None = None) -> Iterable[Path]:
+    cwd: Annotated[Path, Field(description="Current working directory to run git from")] = Path()
+
+    def files(self, *, matching: Iterable[str] | None = None) -> Iterable[Path]:
         """Get files from the project.
 
         Args:
@@ -25,10 +27,12 @@ class Git(BaseModel):
             Files tracked by git (provided they exist) or those yet to be staged.
         """
         matching = list(matching or [])
-        proc = execute("git", ["ls-files", "-z", "--cached", "--others", "--exclude-standard", *matching])
+        proc = execute(
+            "git", ["-C", str(self.cwd), "ls-files", "-z", "--cached", "--others", "--exclude-standard", *matching]
+        )
         return (Path(p) for p in proc.stdout.split("\0") if p and os.path.exists(p))
 
-    def files_change_from_upstream(self, *, matching: Iterable[str] | None = None) -> Iterable[Path]:
+    def files_changed(self, *, matching: Iterable[str] | None = None, from_base: str = "HEAD~1") -> Iterable[Path]:
         """Get files changed since the last common ancestor.
 
         Args:
@@ -38,8 +42,11 @@ class Git(BaseModel):
             Files tracked by git (provided they exist) or those yet to be staged.
         """
         matching = list(matching or [])
-        tracked_files = execute("git", ["diff", "-z", "--name-only", "@{upstream}...HEAD", *matching])
-        new_files = execute("git", ["ls-files", "-z", "--others", "--exclude-standard", *matching])
+        tracked_files = execute(
+            "git",
+            ["-C", str(self.cwd), "diff", "-z", "--name-only", "--diff-filter=AM", f"{from_base}...HEAD", *matching],
+        )
+        new_files = execute("git", ["-C", str(self.cwd), "ls-files", "-z", "--others", "--exclude-standard", *matching])
         return chain(
             (Path(p) for p in tracked_files.stdout.split("\0") if p and os.path.exists(p)),
             (Path(p) for p in new_files.stdout.split("\0") if p and os.path.exists(p)),

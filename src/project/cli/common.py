@@ -1,7 +1,10 @@
+from collections.abc import Iterable  # noqa: TC003 - Typer needs to be able to see this type
 from pathlib import Path
 
 from pydantic import BaseModel, Field
 from typer import Argument, Context
+
+from project.system.files import AllFileTypes, FileType, resolve_files
 
 
 class Common(BaseModel):
@@ -9,8 +12,9 @@ class Common(BaseModel):
     config: Path | None = Field(default=None, description="Path to config file")
     jobs: int = Field(default=0, description="Number of CPUs to use; 0 for all, -N for all but N")
 
+
 def complete_project_paths(_: Context, incomplete: str) -> list[str]:
-    suggestions = ["@all", "@py", "@cxx"]
+    suggestions: list[str] = [AllFileTypes.name, FileType.CXX.name, FileType.CMAKE.name]
 
     current_dir = Path()
     try:
@@ -29,4 +33,11 @@ def complete_project_paths(_: Context, incomplete: str) -> list[str]:
     return [s for s in suggestions if s.startswith(incomplete)]
 
 
-ProjectPathArgument = Argument(default_factory=lambda: ["@all"], allow_dash=True, autocompletion=complete_project_paths)
+def _resolve_files(paths: list[Path]) -> Iterable[Path]:
+    """Typer needs this bridge function to see the type definitions."""
+    return resolve_files(paths)
+
+
+ProjectPathArgument = Argument(
+    default_factory=list, allow_dash=True, autocompletion=complete_project_paths, callback=_resolve_files
+)

@@ -1,11 +1,12 @@
 from pathlib import Path
+from typing import Annotated
 
 from typer import Context, Option, Typer
 
 import project.core.runtime
-from project.cli.commands.fix import fix
-from project.cli.commands.fmt import fmt
-from project.cli.commands.lint import lint
+from project.cli.commands.fix import app as fix
+from project.cli.commands.fmt import app as fmt
+from project.cli.commands.lint import app as lint
 from project.cli.common import Common
 from project.core.error.user import UserError
 
@@ -14,9 +15,9 @@ app = Typer(
     no_args_is_help=True,
     suggest_commands=True,
 )
-app.command()(fmt)
-app.command()(fix)
-app.command()(lint)
+app.add_typer(fmt)
+app.add_typer(fix)
+app.add_typer(lint)
 
 
 def help_for(field: str) -> str:
@@ -30,9 +31,11 @@ def help_for(field: str) -> str:
 def cli(
     ctx: Context,
     *,
-    verbose: int = Option(0, "--verbose", "-v", count=True, envvar="VERBOSE", help=help_for("verbose")),
-    config: Path | None = Option(None, "--config", "-c", exists=True, dir_okay=False, help=help_for("config")),  # noqa: B008
-    jobs: int = Option(0, "--jobs", "-j", help=help_for("jobs")),
+    verbose: Annotated[int, Option("--verbose", "-v", count=True, envvar="VERBOSE", help=help_for("verbose"))] = 0,
+    config: Annotated[
+        Path | None, Option("--config", "-c", exists=True, dir_okay=False, help=help_for("config"))
+    ] = None,
+    jobs: Annotated[int, Option("--jobs", "-j", help=help_for("jobs"))] = 0,
 ) -> None:
     """"""
     ctx.obj = Common.model_validate(locals(), strict=True)
