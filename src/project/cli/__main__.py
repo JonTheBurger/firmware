@@ -1,3 +1,4 @@
+# ruff: noqa: TC003 - Typer needs to be able to see all definitions at runtime.
 import json
 from pathlib import Path
 from typing import Annotated
@@ -11,6 +12,8 @@ from project.commands.fmt import fmt
 from project.commands.lint import lint
 from project.core.config import BaseConfig
 from project.core.error.user import UserError
+from project.core.logger import Log
+from project.core.units import byte
 from project.system.files import FileType
 
 query_app = Typer(
@@ -19,6 +22,7 @@ query_app = Typer(
     context_settings={"help_option_names": ["-h", "--help"]},
     no_args_is_help=True,
     suggest_commands=True,
+    pretty_exceptions_enable=False,
 )
 
 
@@ -56,6 +60,7 @@ app = Typer(
     context_settings={"help_option_names": ["-h", "--help"]},
     no_args_is_help=True,
     suggest_commands=True,
+    pretty_exceptions_enable=False,
 )
 app.add_typer(query_app)
 
@@ -99,10 +104,14 @@ def cli(
 
 def main() -> None:
     project.core.runtime.setup()
-    try:
-        app()
-    except UserError as error:
-        print(error)
+    log = Log.get(__name__)
+    with log.span("cli") as span:
+        try:
+            span.warning("nice")
+            span.metric.binary_size("application.elf", 100 * byte)
+            app()
+        except UserError as error:
+            print(error)
 
 
 if __name__ == "__main__":

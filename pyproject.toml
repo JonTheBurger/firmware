@@ -7,18 +7,19 @@ name = "project"
 version = "2026.11.8.0"
 description = "Project utilities"
 requires-python = ">=3.15"
-dependencies = []
+dependencies = [
+  "opentelemetry-api",
+  "opentelemetry-exporter-otlp",
+  "opentelemetry-sdk",
+  "pint",
+  "pydantic",
+]
 
 [project.optional-dependencies]
-build = [
+tools = [
   "cmake>=4.4",
   "gersemi",
   "pyocd",
-]
-
-core = [
-  "pydantic",
-  "structlog",
 ]
 
 cli = [
@@ -62,5 +63,15 @@ ignore = [
   "EM102",   # Exception mustnot use an f-string literal, assign to a variable first
   "TRY003",  # Avoid specifying long messages outside the exception class
   "T201",    # print found
+]
+
+[tool.ruff.lint.per-file-ignores]
+"src/project/core/**/*.py" = [
   "S603",    # `subprocess` call: check for execution of untrusted input
 ]
+"src/project/system/program.py" = [
+  "S603",    # `subprocess` call: check for execution of untrusted input
+]
+
+[tool.ruff.lint.flake8-tidy-imports]
+ban-relative-imports = "all"

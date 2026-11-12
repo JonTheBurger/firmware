@@ -5,11 +5,10 @@ from pathlib import Path
 from subprocess import CompletedProcess, run
 from typing import Any
 
-import structlog
-
 from project.core.error import user
+from project.core.logger import Log
 
-logger = structlog.get_logger()
+logger = Log.get(__name__)
 
 
 @cache
@@ -46,18 +45,19 @@ def execute(  # noqa: PLR0913 - We're wrapping subprocess run, which has a lot o
     if isinstance(program, str):
         program = find_program(program)
     args = [str(a) for a in args or []]
-    log = logger.bind(program=str(program), args=args)
-    log.debug("Start")
-    start_s = time.perf_counter()
+    with logger.span("process.run", {"path": str(program)}) as span:
+        cmd = [str(program), *args]
 
-    # pyrefly: ignore[no-matching-overload]
-    process = run([str(program), *args], capture_output=capture, text=True, check=check, stdin=stdin, timeout=timeout_s)
+        start_s = time.perf_counter()
+        # pyrefly: ignore[no-matching-overload]
+        process = run(cmd, capture_output=capture, text=True, check=check, stdin=stdin, timeout=timeout_s)
+        duration_s = time.perf_counter() - start_s
 
-    duration_s = time.perf_counter() - start_s
-    log.debug(
-        "Finish",
-        code=process.returncode,
-        seconds=duration_s,
-        bytes_streamed=len(process.stdout or "") + len(process.stderr or ""),
-    )
+        span.log(
+            span.level,
+            " ".join(args),
+            code=process.returncode,
+            seconds=duration_s,
+            bytes_streamed=len(process.stdout or "") + len(process.stderr or ""),
+        )
     return process
