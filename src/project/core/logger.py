@@ -52,7 +52,7 @@ def setup_std_logger() -> Logger:
     log_file.parent.mkdir(parents=True, exist_ok=True)
 
     root = logging.getLogger()
-    root.setLevel(logging.DEBUG)
+    root.setLevel(Log.TRACE)
 
     file_handler = FileHandler(log_file)
     file_handler.setFormatter(BracketFormatter())
@@ -413,7 +413,7 @@ class ScopedLog(LoggerAdapter):
         self._tracer = tracer
         self._event: str = event
         self._attributes: Attributes = attributes or {}
-        self._level: int = level or self.logger.level
+        self._level: int = level or self._logger.level
 
         self._id: str = ""
         self._span: Span | None = None
@@ -434,13 +434,13 @@ class ScopedLog(LoggerAdapter):
         self, exc_type: type[BaseException] | None, exc: BaseException | None, tb: TracebackType | None
     ) -> None:
         try:
-            self.log(self._level, self.FINISH_FMT, self._event)
+            self.log(self._level, self.FINISH_FMT, self._event, extra={"span": self._id})
         finally:
             if self._ctx:
                 self._ctx.__exit__(exc_type, exc, tb)
 
     def set_attribute(self, name: str, value: Any) -> None:
-        if name.startswith(("_", "span")):
+        if name.startswith(("_", "span", *_RESERVED)):
             return
 
         if not name.startswith(self.namespace):
@@ -464,6 +464,10 @@ class ScopedLog(LoggerAdapter):
     @property
     def metric(self) -> Metrics:
         return self._logger.metric
+
+    @property
+    def level(self) -> int:
+        return self._level
 
     @override
     def process(self, msg: str, kwargs: Any) -> tuple[str, Any]:
@@ -537,4 +541,4 @@ def _merge_extra(extra: Attributes | None, kwargs: Mapping[str, object]) -> dict
     return merged
 
 
-_RESERVED: frozenset[str] = frozenset(LogRecord("", 0, "", 0, "", (), None).__dict__) | {"message", "asctime"}
+_RESERVED: frozenset[str] = frozenset(LogRecord("", 0, "", 0, "", (), None).__dict__) | {"message", "asctime", "extra"}

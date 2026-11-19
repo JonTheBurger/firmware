@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 from project.system.files import FileType
 from project.system.program import execute
 from project.tool.git import Git
+from project.tool.ruff import Ruff
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -22,14 +23,14 @@ def fmt(files: Iterable[Path]) -> None:
 
 
 def fmt_py(files: Iterable[Path]) -> None:
-    # --stdin-filename
-    execute("ruff", ["format", "--", *files])
-    execute("ruff", ["check", "--fix", "--fix-only", "--", *files])
+    ruff = Ruff.find()
+    ruff.format(files)
+    ruff.check(files)
 
 
 def fmt_cmake(files: Iterable[Path]) -> None:
     # --stdin-filepath
-    cache_dir = Git().root / ".cache/gersemi"
+    cache_dir = Git.find().root / ".cache/gersemi"
     cache_dir.mkdir(parents=True, exist_ok=True)
     execute(
         "gersemi",

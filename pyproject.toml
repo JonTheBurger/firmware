@@ -8,6 +8,7 @@ version = "2026.11.8.0"
 description = "Project utilities"
 requires-python = ">=3.15"
 dependencies = [
+  "jinja2",
   "opentelemetry-api",
   "opentelemetry-exporter-otlp",
   "opentelemetry-sdk",
@@ -40,12 +41,40 @@ dev = [
   "pytest-coverage",
   "pytest-randomly",
   "ruff",
+  "scalene",
 ]
 
 [tool.pyrefly]
 project-includes = [
   "**/*.py*",
 ]
+
+[tool.pytest]
+cache_dir = ".cache/pytest"
+log_file = ".artifacts/test/pytest.log"
+addopts = [
+  "--junit-xml=.artifacts/test/pytest.junit.xml",
+  "--new-first",
+  "--failed-first",
+  # "--doctest-modules",
+  # "--tb=no"
+]
+markers = [
+  "unit: Fast, isolated tests",
+  "integration: Tests that require real executables, services, etc.",
+]
+junit_logging = "all"
+tmp_path_retention_policy = "failed"
+# log_auto_indent = true
+# log_cli = true
+# log_cli_format = ""
+log_file_level = "INFO"
+testpaths = [
+  # "src/project",
+  "tests/project",
+]
+# --collect-only
+
 
 [tool.ruff]
 cache-dir = ".cache/ruff"
@@ -62,15 +91,11 @@ ignore = [
   "EM101",   # Exception must not use a string literal, assign to a variable first
   "EM102",   # Exception mustnot use an f-string literal, assign to a variable first
   "TRY003",  # Avoid specifying long messages outside the exception class
-  "T201",    # print found
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"src/project/core/**/*.py" = [
-  "S603",    # `subprocess` call: check for execution of untrusted input
-]
-"src/project/system/program.py" = [
-  "S603",    # `subprocess` call: check for execution of untrusted input
+"tests/**.py" = [
+  "S101",    # Use of `assert` detected
 ]
 
 [tool.ruff.lint.flake8-tidy-imports]

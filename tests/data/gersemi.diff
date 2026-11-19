@@ -1,0 +1,42 @@
+--- /home/user/Projects/cxx/firmware/CMakeLists.txt
++++ /home/user/Projects/cxx/firmware/CMakeLists.txt
+@@ -10,11 +10,11 @@
+ add_subdirectory(external SYSTEM EXCLUDE_FROM_ALL)
+ add_executable(firmware.main "src/firmware/main.cxx")
+ target_link_libraries(firmware.main PRIVATE firmware.hal)
+ target_link_options(
+   firmware.main
+-   PRIVATE
++  PRIVATE
+     -T
+     "${CMAKE_CURRENT_LIST_DIR}/src/firmware/STM32F429xx_FLASH.ld"
+ )
+
+ add_library(firmware.hal)
+@@ -24,9 +24,9 @@
+     "src/firmware/hal/led.cxx"
+   PUBLIC
+     FILE_SET HEADERS
+       BASE_DIRS
+         "src"
+-     FILES
+-         "src/firmware/hal/led.hxx"
++      FILES
++        "src/firmware/hal/led.hxx"
+ )
+ target_link_libraries(firmware.hal PUBLIC "$<LINK_LIBRARY:WHOLE_ARCHIVE,stm32f429i-disc1>")
+--- /home/user/Projects/cxx/firmware/tools/cmake/toolchain/firmware.cmake
++++ /home/user/Projects/cxx/firmware/tools/cmake/toolchain/firmware.cmake
+@@ -1,10 +1,10 @@
+ include("${CMAKE_CURRENT_LIST_DIR}/arm-none-eabi-gcc.cmake")
+
+- set(_arch_flags "-ffreestanding -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16")
++set(_arch_flags "-ffreestanding -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16")
+ set(CMAKE_C_FLAGS_INIT "${_arch_flags} -ffunction-sections -fdata-sections")
+- set(CMAKE_CXX_FLAGS_INIT "${CMAKE_C_FLAGS_INIT} -fno-exceptions -fno-rtti -fno-threadsafe-statics")
++set(CMAKE_CXX_FLAGS_INIT "${CMAKE_C_FLAGS_INIT} -fno-exceptions -fno-rtti -fno-threadsafe-statics")
+ set(CMAKE_ASM_FLAGS_INIT "-x assembler-with-cpp")
+ set(CMAKE_EXE_LINKER_FLAGS_INIT "${_arch_flags} --specs=nosys.specs --specs=nano.specs LINKER:--gc-sections")
+ unset(_arch_flags)
+
+ set(CMAKE_C_FLAGS_DEBUG "-Og -g3 -DDEBUG=1")

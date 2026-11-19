@@ -1,10 +1,13 @@
 # ruff: noqa: TC003 - Typer needs to be able to see all definitions at runtime.
+import io
 import json
+import sys
 from pathlib import Path
-from typing import Annotated
+from typing import Annotated, cast
 
 from typer import Context, Option, Typer
 
+import project.core.backtrace
 import project.core.runtime
 from project.cli.args import ProjectPathArgument
 from project.commands.fix import fix
@@ -35,32 +38,32 @@ def cli_query_files(
 ) -> None:
     """Lookup project files."""
 
+    out = cast("io.TextIOWrapper", sys.stdout)
     if as_json:
         delimiter = "  "
-        print("[")
+        out.write("[")
         for file in files:
-            print(delimiter, end="")
-            print(
+            out.write(delimiter)
+            out.write(
                 json.dumps(
                     {
                         "path": str(file),
                         "file_type": str(FileType.detect(file) or FileType.ALL),
                     }
                 ),
-                end="",
             )
             delimiter = ",\n  "
-        print("\n]")
+        out.write("\n]\n")
     else:
         for file in files:
-            print(str(file))
+            out.write(f"{file}\n")
 
 
 app = Typer(
     context_settings={"help_option_names": ["-h", "--help"]},
     no_args_is_help=True,
     suggest_commands=True,
-    pretty_exceptions_enable=False,
+    pretty_exceptions_enable=True,
 )
 app.add_typer(query_app)
 
@@ -98,6 +101,8 @@ def cli(
     jobs: Annotated[int, Option("--jobs", "-j", help=help_for("jobs"))] = 0,
 ) -> None:
     """Project Development Tool Suite."""
+    # Typer hackily overrides the global handler even when disabled, so we re-install our handler after typer.
+    project.core.backtrace.setup()
     ctx.obj = BaseConfig.model_validate(locals(), strict=True)
     del verbose, config, jobs
 

@@ -1,0 +1,453 @@
+{
+  "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+  "runs": [
+    {
+      "results": [
+        {
+          "level": "error",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///home/jon/Projects/cxx/firmware/src/project/cli/__main__.py"
+                },
+                "region": {
+                  "endColumn": 8,
+                  "endLine": 31,
+                  "startColumn": 5,
+                  "startLine": 31
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Unused function argument: `ctx`"
+          },
+          "ruleId": "ARG001"
+        },
+        {
+          "level": "error",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///home/jon/Projects/cxx/firmware/src/project/cli/__main__.py"
+                },
+                "region": {
+                  "endColumn": 16,
+                  "endLine": 69,
+                  "startColumn": 13,
+                  "startLine": 69
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Unused function argument: `ctx`"
+          },
+          "ruleId": "ARG001"
+        },
+        {
+          "level": "error",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///home/jon/Projects/cxx/firmware/src/project/cli/__main__.py"
+                },
+                "region": {
+                  "endColumn": 16,
+                  "endLine": 74,
+                  "startColumn": 13,
+                  "startLine": 74
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Unused function argument: `ctx`"
+          },
+          "ruleId": "ARG001"
+        },
+        {
+          "level": "error",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///home/jon/Projects/cxx/firmware/src/project/cli/__main__.py"
+                },
+                "region": {
+                  "endColumn": 17,
+                  "endLine": 79,
+                  "startColumn": 14,
+                  "startLine": 79
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Unused function argument: `ctx`"
+          },
+          "ruleId": "ARG001"
+        },
+        {
+          "fixes": [
+            {
+              "artifactChanges": [
+                {
+                  "artifactLocation": {
+                    "uri": "file:///home/jon/Projects/cxx/firmware/src/project/core/config.py"
+                  },
+                  "replacements": [
+                    {
+                      "deletedRegion": {
+                        "endColumn": 1,
+                        "endLine": 1,
+                        "startColumn": 1,
+                        "startLine": 1
+                      },
+                      "insertedContent": {
+                        "text": "lazy "
+                      }
+                    }
+                  ]
+                }
+              ],
+              "description": {
+                "text": "Convert to a lazy import (or move into a type-checking block)"
+              }
+            }
+          ],
+          "level": "error",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///home/jon/Projects/cxx/firmware/src/project/core/config.py"
+                },
+                "region": {
+                  "endColumn": 25,
+                  "endLine": 1,
+                  "startColumn": 21,
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Make standard library import `pathlib.Path` lazy"
+          },
+          "ruleId": "TC003"
+        },
+        {
+          "level": "error",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///home/jon/Projects/cxx/firmware/src/project/core/runtime.py"
+                },
+                "region": {
+                  "endColumn": 7,
+                  "endLine": 6,
+                  "startColumn": 3,
+                  "startLine": 6
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Missing issue link for this TODO"
+          },
+          "ruleId": "TD003"
+        },
+        {
+          "level": "error",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///home/jon/Projects/cxx/firmware/src/project/core/runtime.py"
+                },
+                "region": {
+                  "endColumn": 7,
+                  "endLine": 6,
+                  "startColumn": 3,
+                  "startLine": 6
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Line contains TODO, consider resolving the issue"
+          },
+          "ruleId": "FIX002"
+        },
+        {
+          "fixes": [
+            {
+              "artifactChanges": [
+                {
+                  "artifactLocation": {
+                    "uri": "file:///home/jon/Projects/cxx/firmware/src/project/format/diagnostic.py"
+                  },
+                  "replacements": [
+                    {
+                      "deletedRegion": {
+                        "endColumn": 1,
+                        "endLine": 2,
+                        "startColumn": 1,
+                        "startLine": 1
+                      }
+                    }
+                  ]
+                }
+              ],
+              "description": {
+                "text": "Remove unused import: `project.diagnostics.sarif.Sarif`"
+              }
+            }
+          ],
+          "level": "error",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///home/jon/Projects/cxx/firmware/src/project/format/diagnostic.py"
+                },
+                "region": {
+                  "endColumn": 44,
+                  "endLine": 1,
+                  "startColumn": 39,
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "`project.diagnostics.sarif.Sarif` imported but unused"
+          },
+          "ruleId": "F401"
+        },
+        {
+          "level": "error",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///home/jon/Projects/cxx/firmware/tests/project/format/test_diagnostic.py"
+                },
+                "region": {
+                  "endColumn": 1,
+                  "endLine": 1,
+                  "startColumn": 1,
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "File `tests/project/format/test_diagnostic.py` is part of an implicit namespace package. Add an `__init__.py`."
+          },
+          "ruleId": "INP001"
+        },
+        {
+          "fixes": [
+            {
+              "artifactChanges": [
+                {
+                  "artifactLocation": {
+                    "uri": "file:///home/jon/Projects/cxx/firmware/tests/project/format/test_diagnostic.py"
+                  },
+                  "replacements": [
+                    {
+                      "deletedRegion": {
+                        "endColumn": 1,
+                        "endLine": 2,
+                        "startColumn": 1,
+                        "startLine": 1
+                      }
+                    }
+                  ]
+                }
+              ],
+              "description": {
+                "text": "Remove unused import: `pytest`"
+              }
+            }
+          ],
+          "level": "error",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///home/jon/Projects/cxx/firmware/tests/project/format/test_diagnostic.py"
+                },
+                "region": {
+                  "endColumn": 14,
+                  "endLine": 1,
+                  "startColumn": 8,
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "`pytest` imported but unused"
+          },
+          "ruleId": "F401"
+        }
+      ],
+      "tool": {
+        "driver": {
+          "informationUri": "https://github.com/astral-sh/ruff",
+          "name": "ruff",
+          "rules": [
+            {
+              "defaultConfiguration": {
+                "enabled": false,
+                "level": "error"
+              },
+              "fullDescription": {
+                "text": "## What it does\nChecks for the presence of unused arguments in function definitions.\n\n## Why is this bad?\nAn argument that is defined but not used is likely a mistake, and should\nbe removed to avoid confusion.\n\nIf a variable is intentionally defined-but-not-used, it should be\nprefixed with an underscore, or some other value that adheres to the\n[`lint.dummy-variable-rgx`] pattern.\n\n## Example\n```python\ndef foo(bar, baz):\n    return bar * 2\n```\n\nUse instead:\n```python\ndef foo(bar):\n    return bar * 2\n```\n\n## Options\n- `lint.dummy-variable-rgx`\n"
+              },
+              "help": {
+                "text": "Unused function argument: `{name}`"
+              },
+              "helpUri": "https://docs.astral.sh/ruff/rules/unused-function-argument",
+              "id": "ARG001",
+              "properties": {
+                "id": "ARG001",
+                "kind": "flake8-unused-arguments",
+                "name": "unused-function-argument",
+                "problem.severity": "error"
+              },
+              "shortDescription": {
+                "text": "Unused function argument: `{name}`"
+              }
+            },
+            {
+              "defaultConfiguration": {
+                "enabled": true,
+                "level": "error"
+              },
+              "fullDescription": {
+                "text": "## What it does\nChecks for unused imports.\n\n## Why is this bad?\nUnused imports add a performance overhead at runtime, and risk creating\nimport cycles. They also increase the cognitive load of reading the code.\n\nIf an import statement is used to check for the availability or existence\nof a module, consider using `importlib.util.find_spec` instead.\n\nIf an import statement is used to re-export a symbol as part of a module's\npublic interface, consider using a \"redundant\" import alias, which\ninstructs Ruff (and other tools) to respect the re-export, and avoid\nmarking it as unused, as in:\n\n```python\nfrom module import member as member\n```\n\nAlternatively, you can use `__all__` to declare a symbol as part of the module's\ninterface, as in:\n\n```python\n# __init__.py\nimport some_module\n\n__all__ = [\"some_module\"]\n```\n\n## Preview\nWhen [preview] is enabled (and certain simplifying assumptions\nare met), we analyze all import statements for a given module\nwhen determining whether an import is used, rather than simply\nthe last of these statements. This can result in both different and\nmore import statements being marked as unused.\n\nFor example, if a module consists of\n\n```python\nimport a\nimport a.b\n```\n\nthen both statements are marked as unused under [preview], whereas\nonly the second is marked as unused under stable behavior.\n\nAs another example, if a module consists of\n\n```python\nimport a.b\nimport a\n\na.b.foo()\n```\n\nthen a diagnostic will be emitted for the second line under [preview],\nwhereas no diagnostic is emitted under stable behavior.\n\nNote that this behavior is somewhat subjective and is designed\nto conform to the developer's intuition rather than Python's actual\nexecution. To wit, the statement `import a.b` automatically executes\n`import a`, so in some sense `import a` is _always_ redundant\nin the presence of `import a.b`.\n\n\n## Fix safety\n\nFixes to remove unused imports are safe, except in `__init__.py` files.\n\nApplying fixes to `__init__.py` files is currently in preview. The fix offered depends on the\ntype of the unused import. Ruff will suggest a safe fix to export first-party imports with\neither a redundant alias or, if already present in the file, an `__all__` entry. If multiple\n`__all__` declarations are present, Ruff will not offer a fix. Ruff will suggest an unsafe fix\nto remove third-party and standard library imports -- the fix is unsafe because the module's\ninterface changes.\n\nSee [this FAQ section](https://docs.astral.sh/ruff/faq/#how-does-ruff-determine-which-of-my-imports-are-first-party-third-party-etc)\nfor more details on how Ruff\ndetermines whether an import is first or third-party.\n\n## Example\n\n```python\nimport numpy as np  # unused import\n\n\ndef area(radius):\n    return 3.14 * radius**2\n```\n\nUse instead:\n\n```python\ndef area(radius):\n    return 3.14 * radius**2\n```\n\nTo check the availability of a module, use `importlib.util.find_spec`:\n\n```python\nfrom importlib.util import find_spec\n\nif find_spec(\"numpy\") is not None:\n    print(\"numpy is installed\")\nelse:\n    print(\"numpy is not installed\")\n```\n\n## Options\n- `lint.ignore-init-module-imports`\n- `lint.pyflakes.allowed-unused-imports`\n\n## References\n- [Python documentation: `import`](https://docs.python.org/3/reference/simple_stmts.html#the-import-statement)\n- [Python documentation: `importlib.util.find_spec`](https://docs.python.org/3/library/importlib.html#importlib.util.find_spec)\n- [Typing documentation: interface conventions](https://typing.python.org/en/latest/spec/distributing.html#library-interface-public-and-private-symbols)\n\n[preview]: https://docs.astral.sh/ruff/preview/\n"
+              },
+              "help": {
+                "text": "`{name}` imported but unused; consider using `importlib.util.find_spec` to test for availability"
+              },
+              "helpUri": "https://docs.astral.sh/ruff/rules/unused-import",
+              "id": "F401",
+              "properties": {
+                "id": "F401",
+                "kind": "Pyflakes",
+                "name": "unused-import",
+                "problem.severity": "error"
+              },
+              "shortDescription": {
+                "text": "`{name}` imported but unused; consider using `importlib.util.find_spec` to test for availability"
+              }
+            },
+            {
+              "defaultConfiguration": {
+                "enabled": false,
+                "level": "error"
+              },
+              "fullDescription": {
+                "text": "## What it does\nChecks for \"TODO\" comments.\n\n## Why is this bad?\n\"TODO\" comments are used to describe an issue that should be resolved\n(usually, a missing feature, optimization, or refactoring opportunity).\n\nConsider resolving the issue before deploying the code.\n\nNote that if you use \"TODO\" comments as a form of documentation (e.g.,\nto [provide context for future work](https://gist.github.com/dmnd/ed5d8ef8de2e4cfea174bd5dafcda382)),\nthis rule may not be appropriate for your project.\n\n## Example\n```python\ndef greet(name):\n    return f\"Hello, {name}!\"  # TODO: Add support for custom greetings.\n```\n"
+              },
+              "help": {
+                "text": "Line contains TODO, consider resolving the issue"
+              },
+              "helpUri": "https://docs.astral.sh/ruff/rules/line-contains-todo",
+              "id": "FIX002",
+              "properties": {
+                "id": "FIX002",
+                "kind": "flake8-fixme",
+                "name": "line-contains-todo",
+                "problem.severity": "error"
+              },
+              "shortDescription": {
+                "text": "Line contains TODO, consider resolving the issue"
+              }
+            },
+            {
+              "defaultConfiguration": {
+                "enabled": false,
+                "level": "error"
+              },
+              "fullDescription": {
+                "text": "## What it does\nChecks for packages that are missing an `__init__.py` file.\n\n## Why is this bad?\nPython packages are directories that contain a file named `__init__.py`.\nThe existence of this file indicates that the directory is a Python\npackage, and so it can be imported the same way a module can be\nimported.\n\nDirectories that lack an `__init__.py` file can still be imported, but\nthey're indicative of a special kind of package, known as a \"namespace\npackage\" (see: [PEP 420](https://peps.python.org/pep-0420/)).\nNamespace packages are less widely used, so a package that lacks an\n`__init__.py` file is typically meant to be a regular package, and\nthe absence of the `__init__.py` file is probably an oversight.\n\n## Preview\n\nIn preview, the rule also checks for packages without `__init__.py` files between two regular\npackages, such as `bar` in the project structure below.\n\n```text\nfoo/\n├── __init__.py\n└── bar/\n    └── baz/\n        └── __init__.py\n```\n\n## Options\n- `namespace-packages`\n"
+              },
+              "help": {
+                "text": "File `{filename}` is part of an implicit namespace package. Add an `__init__.py`."
+              },
+              "helpUri": "https://docs.astral.sh/ruff/rules/implicit-namespace-package",
+              "id": "INP001",
+              "properties": {
+                "id": "INP001",
+                "kind": "flake8-no-pep420",
+                "name": "implicit-namespace-package",
+                "problem.severity": "error"
+              },
+              "shortDescription": {
+                "text": "File `{filename}` is part of an implicit namespace package. Add an `__init__.py`."
+              }
+            },
+            {
+              "defaultConfiguration": {
+                "enabled": false,
+                "level": "error"
+              },
+              "fullDescription": {
+                "text": "## What it does\nChecks for standard library imports that are only used for type\nannotations, but aren't imported lazily or defined in a type-checking block.\n\n## Why is this bad?\nImports that are only used for type annotations add a performance overhead\nat runtime. If an import is _only_ used in typing-only contexts, it can\ninstead be imported conditionally under an `if TYPE_CHECKING:` block to\nminimize runtime overhead.\n\nIf [`lint.flake8-type-checking.quote-annotations`] is set to `true`,\nannotations will be wrapped in quotes if doing so would enable the\ncorresponding import to be moved into an `if TYPE_CHECKING:` block.\n\nIf a class _requires_ that type annotations be available at runtime (as is\nthe case for Pydantic, SQLAlchemy, and other libraries), consider using\nthe [`lint.flake8-type-checking.runtime-evaluated-base-classes`] and\n[`lint.flake8-type-checking.runtime-evaluated-decorators`] settings to mark them\nas such.\n\nIf [`lint.future-annotations`] is set to `true`, `from __future__ import\nannotations` will be added if doing so would enable an import to be\nmoved into an `if TYPE_CHECKING:` block. This takes precedence over the\n[`lint.flake8-type-checking.quote-annotations`] setting described above if\nboth settings are enabled.\n\nOn Python 3.15 and later, lazy imports are also exempt, including imports\nmade lazy by a literal `__lazy_modules__` declaration. The fix prefers adding\n`lazy` to single-name import statements where the syntax is legal and\n[`lint.flake8-tidy-imports.ban-lazy`] allows it. This defers the import while\nkeeping the name available for runtime annotation inspection.\n\n## Example\n```python\nfrom __future__ import annotations\n\nfrom pathlib import Path\n\n\ndef func(path: Path) -> str:\n    return str(path)\n```\n\nUse instead:\n```python\nfrom __future__ import annotations\n\nfrom typing import TYPE_CHECKING\n\nif TYPE_CHECKING:\n    from pathlib import Path\n\n\ndef func(path: Path) -> str:\n    return str(path)\n```\n\nOn Python 3.15 and later, using a lazy import is also an option:\n```python\nlazy from pathlib import Path\n\n\ndef func(path: Path) -> str:\n    return str(path)\n```\n\n## Fix safety\nThis rule's fixes are unsafe because changing when a module is imported can\naffect runtime behavior, including import-time side effects.\n\n## Options\n- `lint.flake8-tidy-imports.ban-lazy`\n- `lint.flake8-type-checking.quote-annotations`\n- `lint.flake8-type-checking.runtime-evaluated-base-classes`\n- `lint.flake8-type-checking.runtime-evaluated-decorators`\n- `lint.flake8-type-checking.strict`\n- `lint.typing-modules`\n- `lint.future-annotations`\n\n## References\n- [PEP 563: Runtime annotation resolution and `TYPE_CHECKING`](https://peps.python.org/pep-0563/#runtime-annotation-resolution-and-type-checking)\n"
+              },
+              "help": {
+                "text": "Move standard library import `{}` into a type-checking block"
+              },
+              "helpUri": "https://docs.astral.sh/ruff/rules/typing-only-standard-library-import",
+              "id": "TC003",
+              "properties": {
+                "id": "TC003",
+                "kind": "flake8-type-checking",
+                "name": "typing-only-standard-library-import",
+                "problem.severity": "error"
+              },
+              "shortDescription": {
+                "text": "Move standard library import `{}` into a type-checking block"
+              }
+            },
+            {
+              "defaultConfiguration": {
+                "enabled": false,
+                "level": "error"
+              },
+              "fullDescription": {
+                "text": "## What it does\nChecks that a TODO comment is associated with a link to a relevant issue\nor ticket.\n\n## Why is this bad?\nIncluding an issue link near a TODO makes it easier for resolvers\nto get context around the issue.\n\n## Example\n```python\n# TODO: this link has no issue\n```\n\nUse one of these instead:\n```python\n# TODO(charlie): this comment has an issue link\n# https://github.com/astral-sh/ruff/issues/3870\n\n# TODO(charlie): this comment has a 3-digit issue code\n# 003\n\n# TODO(charlie): https://github.com/astral-sh/ruff/issues/3870\n# this comment has an issue link\n\n# TODO(charlie): #003 this comment has a 3-digit issue code\n# with leading character `#`\n\n# TODO(charlie): this comment has an issue code (matches the regex `[A-Z]+\\-?\\d+`)\n# SIXCHR-003\n```\n"
+              },
+              "help": {
+                "text": "Missing issue link for this TODO"
+              },
+              "helpUri": "https://docs.astral.sh/ruff/rules/missing-todo-link",
+              "id": "TD003",
+              "properties": {
+                "id": "TD003",
+                "kind": "flake8-todos",
+                "name": "missing-todo-link",
+                "problem.severity": "error"
+              },
+              "shortDescription": {
+                "text": "Missing issue link for this TODO"
+              }
+            }
+          ],
+          "version": "0.17.4"
+        }
+      }
+    }
+  ],
+  "version": "2.1.0"
+}
+

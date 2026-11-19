@@ -2,6 +2,7 @@
 
 from abc import ABC
 from enum import IntEnum
+from pathlib import Path
 from typing import Any, ClassVar
 
 
@@ -44,6 +45,6 @@ class UserError(ABC, Exception):
 class MissingProgramError(UserError):
     code = Code.MISSING_PROGRAM
 
-    def __init__(self, *, program: str) -> None:
+    def __init__(self, *, program: str | Path) -> None:
         # It would be nice if we could use apt-file or something to look up package name hints
         super().__init__(f'Could not find a program named "{program}"')

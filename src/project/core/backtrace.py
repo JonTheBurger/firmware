@@ -6,7 +6,7 @@ import rich.traceback
 
 def setup() -> None:
     rich.traceback.install(
-        extra_lines=0,
+        extra_lines=2,
         max_frames=5,
         suppress=[
             sys.prefix,
