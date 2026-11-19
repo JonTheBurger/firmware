@@ -108,15 +108,15 @@ def cli(
 
 
 def main() -> None:
-    project.core.runtime.setup()
-    log = Log.get(__name__)
-    with log.span("cli") as span:
-        try:
-            span.warning("nice")
-            span.metric.binary_size("application.elf", 100 * byte)
-            app()
-        except UserError as error:
-            print(error)
+    with project.core.runtime.setup():
+        log = Log.get(__name__)
+        with log.span("cli") as span:
+            try:
+                span.warning("nice")
+                span.metric.binary_size("application.elf", 100 * byte)
+                app()
+            except UserError as error:
+                print(error)
 
 
 if __name__ == "__main__":

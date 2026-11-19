@@ -1,6 +1,8 @@
 import logging
 import shutil
 import subprocess
+from collections.abc import Generator
+from contextlib import contextmanager
 from logging import Filter, Handler, Logger, LogRecord
 from typing import Any, Final
 
@@ -24,7 +26,8 @@ EXPORT_PERIOD: Duration = 500 * ms
 EXPORT_EXIT_WAIT: Duration = 750 * ms
 
 
-def setup() -> Handler:
+@contextmanager
+def setup() -> Generator[Handler]:
     if not (git := shutil.which("git")):
         raise user.MissingProgramError(program="git")
     proc = subprocess.run([git, "config", "--get", "remote.origin.url"], text=True, check=False, capture_output=True)
@@ -36,7 +39,7 @@ def setup() -> Handler:
         resource=resource,
         metric_readers=[
             PeriodicExportingMetricReader(
-                OTLPMetricExporter(endpoint=endpoint, insecure=True),
+                OTLPMetricExporter(endpoint=endpoint, insecure=True, timeout=EXPORT_EXIT_WAIT.to(s).m),
                 export_interval_millis=EXPORT_PERIOD.to(ms).m,
             )
         ],
@@ -44,7 +47,9 @@ def setup() -> Handler:
     metrics.set_meter_provider(meter_provider)
 
     tracer_provider = TracerProvider(resource=resource, meter_provider=meter_provider)
-    tracer_provider.add_span_processor(BatchSpanProcessor(OTLPSpanExporter(endpoint=endpoint, insecure=True)))
+    tracer_provider.add_span_processor(
+        BatchSpanProcessor(OTLPSpanExporter(endpoint=endpoint, insecure=True, timeout=EXPORT_EXIT_WAIT.to(s).m))
+    )
     trace.set_tracer_provider(tracer_provider)
 
     provider = LoggerProvider(resource=resource, meter_provider=meter_provider)
@@ -58,7 +63,13 @@ def setup() -> Handler:
     handler = LoggingHandler(level=logging.NOTSET, logger_provider=provider)
     handler.addFilter(DropTelemetryRecords())
 
-    return handler
+    try:
+        yield handler
+    finally:
+        tracer_provider.force_flush(timeout_millis=int(EXPORT_EXIT_WAIT.to(ms).m))
+        tracer_provider.shutdown()
+        meter_provider.shutdown(timeout_millis=int(EXPORT_EXIT_WAIT.to(ms).m))
+        provider.shutdown()
 
 
 _METER: Final = metrics.get_meter("metric")

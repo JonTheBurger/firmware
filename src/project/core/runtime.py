@@ -1,10 +1,18 @@
+from collections.abc import Generator
+from contextlib import contextmanager
+
 import project.core.backtrace
 import project.core.logger
 import project.core.metrics
+from project.core.logger import Log
 
 
-# TODO(JON): This should probably be a context manager with shutdown
-def setup() -> None:
+@contextmanager
+def setup() -> Generator:
     project.core.backtrace.setup()
-    otel_handler = project.core.metrics.setup()
-    project.core.logger.setup().addHandler(otel_handler)
+    with project.core.metrics.setup() as otel_handler:
+        project.core.logger.setup().addHandler(otel_handler)
+        try:
+            yield
+        finally:
+            Log.get().remove_handler(otel_handler)

@@ -94,8 +94,6 @@ class Diff(BaseModel):
                 tokens = line.strip("@ \r\n").replace(" ", ",").split(",")
                 old.line, _, new.line, _ = (int(e) for e in tokens)
                 old.line = -old.line
-                # old.line -= 1
-                # new.line -= 1
 
             elif line.startswith("-"):
                 # Lines that start with - are deletions
