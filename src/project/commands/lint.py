@@ -1,8 +1,14 @@
+from project.format.report import InfoItem
+from project.format.report import Report
+from collections.abc import Collection
 from typing import TYPE_CHECKING
 
+from project.core.dirs import lint_dir
+from project.format.report import Diagnostic
 from project.system.files import FileType
 from project.system.program import execute
 from project.tool.git import Git
+from project.tool.ruff import Ruff
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -21,15 +27,34 @@ def lint(files: Iterable[Path]) -> None:
         lint_cxx(cxx_files)
 
 
-def lint_py(files: Iterable[Path]) -> None:
-    # --stdin-filename
-    execute("ruff", ["format", "--check", "--", *files], check=False, capture=False)
-    execute("ruff", ["check", "--", *files], check=False, capture=False)
+def lint_py(files: Collection[Path]) -> None:
+    diagnostics: list[Diagnostic] = []
+
+    sarif = Ruff.tool().check(files)
+    sarif.to_file(lint_dir() / "ruff.sarif")
+    diagnostics.extend(Diagnostic.from_sarif(sarif))
+
+    sarif = Ruff.tool().format_check(files)
+    sarif.to_file(lint_dir() / "format.ruff.sarif")
+    diagnostics.extend(Diagnostic.from_sarif(sarif))
+
+    report = Report(
+        title="Ruff Linter Results",
+        diagnostics=diagnostics,
+        info=[
+            InfoItem(
+                icon=":)",
+                heading="COOL",
+                message="Poggers",
+            )
+        ],
+    )
+    report.render()
 
 
-def lint_cmake(files: Iterable[Path]) -> None:
+def lint_cmake(files: Collection[Path]) -> None:
     # --stdin-filepath
-    cache_dir = Git().root / ".cache/gersemi"
+    cache_dir = Git.tool().root / ".cache/gersemi"
     cache_dir.mkdir(parents=True, exist_ok=True)
     execute(
         "gersemi",
@@ -39,7 +64,7 @@ def lint_cmake(files: Iterable[Path]) -> None:
     )
 
 
-def lint_cxx(files: Iterable[Path]) -> None:
+def lint_cxx(files: Collection[Path]) -> None:
     # --files or @<file>
     execute(
         "clang-format",

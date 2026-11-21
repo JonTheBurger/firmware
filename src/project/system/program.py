@@ -1,16 +1,19 @@
 import shutil
 import time
-from collections.abc import Iterable
 from functools import cache
 from pathlib import Path
 from subprocess import CompletedProcess, run
-from typing import Any, Self
+from typing import TYPE_CHECKING, Any, ClassVar, Self
 
 from pydantic import BaseModel
 
 from project.core.error import user
 from project.core.logger import Log
 from project.core.units import Duration, s
+from project.format.sarif import SarifTool, SarifToolComponent
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 logger = Log.get(__name__)
 
@@ -19,6 +22,7 @@ class Program(BaseModel):
     name: str
     path: Path
     version: str
+    uri: ClassVar[str | None] = None
 
     def execute(
         self,
@@ -30,8 +34,18 @@ class Program(BaseModel):
     ) -> CompletedProcess[str]:
         return execute(self.path, args, check=check, capture=capture, timeout=timeout)
 
+    def sarif(self) -> SarifTool:
+        """Sarif tool section for this program."""
+        return SarifTool(
+            driver=SarifToolComponent(
+                name=self.name,
+                information_uri=self.uri,
+                version=self.version,
+            )
+        )
+
     @classmethod
-    def find(cls, name: str | None = None, version_command: tuple[str, ...] = ("--version",)) -> Self:
+    def tool(cls, name: str | None = None, version_command: tuple[str, ...] = ("--version",)) -> Self:
         name = name or cls.__name__.lower()
         return cls.model_validate(find_program(name, version_command=version_command).model_dump())
 

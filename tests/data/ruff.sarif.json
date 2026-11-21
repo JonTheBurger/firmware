@@ -10,20 +10,13 @@
               "physicalLocation": {
                 "artifactLocation": {
                   "uri": "file:///home/jon/Projects/cxx/firmware/src/project/cli/__main__.py"
-                },
-                "region": {
-                  "endColumn": 8,
-                  "endLine": 31,
-                  "startColumn": 5,
-                  "startLine": 31
                 }
               }
             }
           ],
           "message": {
             "text": "Unused function argument: `ctx`"
-          },
-          "ruleId": "ARG001"
+          }
         },
         {
           "level": "error",

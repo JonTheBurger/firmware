@@ -5,7 +5,7 @@ from typing import Annotated
 from pint import Quantity, Unit, UnitRegistry
 
 # Create units + dimensions
-_ureg = UnitRegistry()
+_ureg = UnitRegistry(cache_folder=":auto:")
 _ureg.define("bit = [memory]")
 _ureg.define("byte = 8 * bit = B")
 
@@ -16,7 +16,7 @@ byte: Unit = _ureg.bytes
 type Duration = Annotated[Quantity[float], "[time]"]
 s: Unit = _ureg.seconds
 ms: Unit = _ureg.milliseconds
-minute: Unit = _ureg.milliseconds
+minute: Unit = _ureg.minute
 
 
 def to_ucum(quantity: Quantity[float]) -> tuple[float, str]:

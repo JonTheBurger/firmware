@@ -81,6 +81,7 @@ def cli_fix(ctx: Context, files: Annotated[list[Path], ProjectPathArgument]) -> 
 @app.command(name="lint", help=lint.__doc__)
 def cli_lint(ctx: Context, files: Annotated[list[Path], ProjectPathArgument]) -> None:
     lint(files)
+    Path(".artifacts/lint/ruff.format.sarif")
 
 
 def help_for(field: str) -> str:

@@ -1,16 +1,34 @@
-from typing import Annotated, Any
+from enum import StrEnum
+from pathlib import Path
+from typing import TYPE_CHECKING, Annotated, Any
 
 from pydantic import BaseModel, ConfigDict, Field
+
+if TYPE_CHECKING:
+    from _typeshed import StrPath
 
 
 class _SarifModel(BaseModel):
     model_config = ConfigDict(extra="allow", populate_by_name=True)
 
 
+class SarifLevel(StrEnum):
+    NONE = "none"
+    NOTE = "note"
+    WARNING = "warning"
+    ERROR = "error"
+
+
 class Sarif(_SarifModel):
-    schema_uri: Annotated[str | None, Field(alias="$schema")] = None
-    version: str
+    schema_uri: Annotated[str | None, Field(alias="$schema")] = "https://json.schemastore.org/sarif-2.1.0.json"
+    version: str = "2.1.0"
     runs: Annotated[list[SarifRun], Field(default_factory=list)]
+
+    def to_file(self, file: StrPath, *, indent: int | None = None) -> Path:
+        file = Path(file)
+        file.parent.mkdir(parents=True, exist_ok=True)
+        file.write_text(self.model_dump_json(exclude_none=True, indent=indent))
+        return file
 
 
 class SarifRun(_SarifModel):
@@ -48,10 +66,26 @@ class SarifConfigurationOverride(_SarifModel):
 
 class SarifResult(_SarifModel):
     rule_id: Annotated[str | None, Field(alias="ruleId")] = None
-    level: str | None = None
+    level: SarifLevel = SarifLevel.NONE
     message: SarifMessage
     locations: Annotated[list[SarifLocation], Field(default_factory=list)]
     fixes: Annotated[list[SarifFix], Field(default_factory=list)]
+
+    @classmethod
+    def success(cls, file: StrPath) -> SarifResult:
+        return SarifResult(
+            level=SarifLevel.NOTE,
+            message=SarifMessage(
+                text="Success",
+            ),
+            locations=[
+                SarifLocation(
+                    physical_location=SarifPhysicalLocation(
+                        artifact_location=SarifArtifactLocation(uri=Path(file).absolute().as_uri())
+                    )
+                )
+            ],
+        )
 
 
 class SarifMessage(_SarifModel):

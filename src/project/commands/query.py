@@ -18,7 +18,7 @@ def resolve_files(paths: Collection[Path]) -> Iterable[Path]:
     Returns:
         Files matching the given paths.
     """
-    git = Git.find()
+    git = Git.tool()
     if not paths:
         yield from git.files_changed(from_base="main")
 

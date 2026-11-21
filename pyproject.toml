@@ -14,6 +14,7 @@ dependencies = [
   "opentelemetry-sdk",
   "pint",
   "pydantic",
+  "pygments",
 ]
 
 [project.optional-dependencies]
@@ -41,6 +42,7 @@ dev = [
   "pytest-coverage",
   "pytest-randomly",
   "ruff",
+  "types-pygments",
   "scalene",
 ]
 
@@ -51,7 +53,7 @@ project-includes = [
 
 [tool.pytest]
 cache_dir = ".cache/pytest"
-log_file = ".artifacts/test/pytest.log"
+log_file = ".artifacts/logs/pytest.log"
 addopts = [
   "--junit-xml=.artifacts/test/pytest.junit.xml",
   "--new-first",
@@ -100,3 +102,6 @@ ignore = [
 
 [tool.ruff.lint.flake8-tidy-imports]
 ban-relative-imports = "all"
+
+[tool.setuptools.package-data]
+project = ["data/templates/*.j2"]

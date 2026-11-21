@@ -23,14 +23,14 @@ def fmt(files: Iterable[Path]) -> None:
 
 
 def fmt_py(files: Iterable[Path]) -> None:
-    ruff = Ruff.find()
+    ruff = Ruff.tool()
     ruff.format(files)
     ruff.check(files)
 
 
 def fmt_cmake(files: Iterable[Path]) -> None:
     # --stdin-filepath
-    cache_dir = Git.find().root / ".cache/gersemi"
+    cache_dir = Git.tool().root / ".cache/gersemi"
     cache_dir.mkdir(parents=True, exist_ok=True)
     execute(
         "gersemi",

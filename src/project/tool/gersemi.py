@@ -9,7 +9,7 @@ from project.tool.git import Git
 class Gersemi(Program):
     @property
     def cache_dir(self) -> Path:
-        cache_dir = Git.find().root / ".cache/gersemi"
+        cache_dir = Git.tool().root / ".cache/gersemi"
         cache_dir.mkdir(parents=True, exist_ok=True)
         return cache_dir
 

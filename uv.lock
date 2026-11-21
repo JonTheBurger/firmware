@@ -764,11 +764,13 @@ name = "project"
 version = "2026.11.8.0"
 source = { editable = "." }
 dependencies = [
+    { name = "jinja2" },
     { name = "opentelemetry-api" },
     { name = "opentelemetry-exporter-otlp" },
     { name = "opentelemetry-sdk" },
     { name = "pint" },
     { name = "pydantic" },
+    { name = "pygments" },
 ]
 
 [package.optional-dependencies]
@@ -792,17 +794,20 @@ dev = [
     { name = "pytest-xdist" },
     { name = "ruff" },
     { name = "scalene" },
+    { name = "types-pygments" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "cmake", marker = "extra == 'tools'", specifier = ">=4.4" },
     { name = "gersemi", marker = "extra == 'tools'" },
+    { name = "jinja2" },
     { name = "opentelemetry-api" },
     { name = "opentelemetry-exporter-otlp" },
     { name = "opentelemetry-sdk" },
     { name = "pint" },
     { name = "pydantic" },
+    { name = "pygments" },
     { name = "pyocd", marker = "extra == 'tools'" },
     { name = "typer", marker = "extra == 'cli'" },
 ]
@@ -819,6 +824,7 @@ dev = [
     { name = "pytest-xdist" },
     { name = "ruff" },
     { name = "scalene" },
+    { name = "types-pygments" },
 ]
 
 [[package]]
@@ -1211,6 +1217,15 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/ed/db/401793a0d5345409a28de2c571d4ef8bea9a08700c20ea7f7b6af3b050d2/typer-0.29.0.tar.gz", hash = "sha256:6871960a1603fba66af2ff751be48a6735af6480a67660afaf2fab2f7e008ed4", size = 206371, upload-time = "2026-11-09T18:48:12.751Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/c1/3d/cc08d3cb257764101c71c47f18e2f547782d013928edc877f155cb99229d/typer-0.29.0-py3-none-any.whl", hash = "sha256:b3c3de6e06a848274dc7bd56a433499e9cf25fa1d40aa3ba4eccfec4e1624c7b", size = 121058, upload-time = "2026-11-09T18:48:11.665Z" },
+]
+
+[[package]]
+name = "types-pygments"
+version = "2.21.0.20261115"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/9c/08/24586d80224f2ec635254df6d9fa8c6910eba35c893f04f9223ddfc37cd6/types_pygments-2.21.0.20261115.tar.gz", hash = "sha256:cecb86ae5d6d9d06184f6f2f71a23a88242606ae54c52673d949bb6e5592a606", size = 21770, upload-time = "2026-11-15T08:33:27.549Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/7d/2f/c0336c0bee671708ed0e3762fac94170de595461523598dfa470a888d3c5/types_pygments-2.21.0.20261115-py3-none-any.whl", hash = "sha256:6179c0d8460f32491b60294f6e4c340811a97e229a9738327c9d33ea0bb5ad59", size = 29248, upload-time = "2026-11-15T08:33:26.429Z" },
 ]
 
 [[package]]

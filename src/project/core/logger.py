@@ -1,17 +1,14 @@
 import json
 import logging
-import shutil
-import subprocess
 from collections.abc import Callable, Mapping
 from logging import FileHandler, Filter, Formatter, Handler, Logger, LoggerAdapter, LogRecord
-from pathlib import Path
 from types import TracebackType
 from typing import TYPE_CHECKING, Any, ClassVar, Self, override
 
 from opentelemetry import trace
 from opentelemetry.trace import StatusCode, Tracer
 
-from project.core.error import user
+from project.core.dirs import logs_dir
 from project.core.metrics import Metrics
 
 if TYPE_CHECKING:
@@ -44,12 +41,7 @@ def setup_log_levels() -> None:
 
 
 def setup_std_logger() -> Logger:
-    if not (git := shutil.which("git")):
-        raise user.MissingProgramError(program="git")
-    proc = subprocess.run([git, "rev-parse", "--show-toplevel"], text=True, check=False, capture_output=True)
-    project_root = (proc.stdout or "").strip()
-    log_file = Path(project_root) / ".artifacts/project.log"
-    log_file.parent.mkdir(parents=True, exist_ok=True)
+    log_file = logs_dir() / "project.log"
 
     root = logging.getLogger()
     root.setLevel(Log.TRACE)
