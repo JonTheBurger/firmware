@@ -1,55 +1,101 @@
-from project.core.dirs import html_dir
-from project.format.sarif import SarifPhysicalLocation
-from collections.abc import Iterable
-from project.format.sarif import Sarif
-from dataclasses import asdict, dataclass, field
+"""The formats that are specific to this application."""
+
+from dataclasses import dataclass, field
+from enum import StrEnum
 from os import PathLike
 from pathlib import Path
-from typing import TYPE_CHECKING, Literal, TextIO
+from typing import TYPE_CHECKING, Self, TextIO
 
 from jinja2 import Environment, PackageLoader, select_autoescape
+from pydantic import BaseModel
 from pygments import highlight
 from pygments.formatters import HtmlFormatter
 from pygments.lexers import TextLexer, get_lexer_by_name
 from pygments.util import ClassNotFound
 
+from project.core.dirs import html_dir, project_dir
+from project.format.sarif import Sarif, SarifLevel
+from project.util.file_range import FileRange
+from project.util.json import JsonEncoder
+from project.util.maybe import maybe
+
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+
     from _typeshed import StrPath
 
-Status = Literal["error", "warning", "info"]
+
+class Severity(StrEnum):
+    NONE = ""
+    NOTE = "note"
+    WARNING = "warning"
+    ERROR = "error"
+
+    @classmethod
+    def from_sarif(cls, level: SarifLevel) -> Self:
+        match level:
+            case SarifLevel.ERROR:
+                return cls.ERROR
+            case SarifLevel.WARNING:
+                return cls.WARNING
+            case SarifLevel.NOTE:
+                return cls.NOTE
+            case _:
+                return cls.NONE
 
 
-@dataclass(slots=True)
-class Diagnostic:
-    status: str | Status
-    tool: str
-    file: str
+class Diagnostic(BaseModel):
+    extent: FileRange
     message: str
+    tool: str = ""
+    rule: str = ""
     language: str = "text"
-    line: int | None = None
-    id: str = ""
+    severity: Severity = Severity.NONE
+
+    def __str__(self) -> str:
+        """In ``<file>:<line>:<column>: <severity>: <message> [<rule>]`` format."""
+        string = f"{self.extent}: "
+        if self.severity != Severity.NONE:
+            string += f"{self.severity}: "
+        string += self.message
+        if self.rule:
+            string += f"[{self.rule}]"
+        return string
+
+    def source_code(self, *, context_lines: int = 0) -> str:
+        expanded = self.extent.expand_lines(context_lines)
+        lines = list(expanded.read_lines())
+        underline = self.extent.underline()
+        row = expanded.start.line - self.extent.start.line
+        row = self.extent.start.line - expanded.start.line + 1
+        lines.insert(row, underline)
+        return "\n".join(lines)
 
     @classmethod
     def from_sarif(cls, sarif: Sarif) -> Iterable[Diagnostic]:
         for run in sarif.runs:
             for result in run.results:
-                loc = result.locations[0].physical_location
-                if loc is None:
-                    continue
-                loc = loc.artifact_location
-                if loc is None:
-                    continue
-                tool = run.tool
-                if tool is None:
-                    continue
-                tool = tool.driver
-                if run.tool is None:
-                    continue
+                maybe_location = maybe(result.locations[0].physical_location)
+                file: Path = (
+                    maybe_location.and_then(lambda x: x.artifact_location)
+                    .and_then(lambda x: x.uri)
+                    .and_then(Path.from_uri)
+                    .or_else(project_dir)
+                )
+                tool: str = maybe(run.tool).and_then(lambda tool: tool.driver).and_then(lambda d: d.name).or_else(str)
+                maybe_region = maybe_location.and_then(lambda x: x.region)
+                extent = FileRange(file, 1, 5)
+                if region := maybe_region.option:
+                    extent = FileRange(
+                        file,
+                        ((region.start_line or 1), (region.start_column or 1)),
+                        ((region.end_line or 1), (region.end_column or 1) - 1),
+                    )
                 yield Diagnostic(
-                    file=loc.uri or "<unknown>",
+                    extent=extent,
                     message=result.message.markdown or result.message.text or "<unknown>",
-                    tool=tool.name or "<unknown>",
-                    status=result.level,
+                    tool=tool,
+                    severity=Severity.from_sarif(result.level),
                 )
 
 
@@ -73,19 +119,19 @@ class Report:
             loader=PackageLoader("project", "data/templates"),
             autoescape=select_autoescape(enabled_extensions=("html.j2",)),
         )
+        env.policies["json.dumps_kwargs"] = {"cls": JsonEncoder}
         template = env.get_template("report.html.j2")
 
         rows = []
         for index, diagnostic in enumerate(self.diagnostics):
-            row = asdict(diagnostic)
-            row["id"] = row["id"] or f"diagnostic-{index}"
+            row = diagnostic.model_dump()
+            row["file"] = diagnostic.extent.file.relative_to(project_dir())
+            row["rule"] = row["rule"] or f"diagnostic-{index}"
             # Pygments escapes the source text and emits only its own span markup.
-            row["highlighted_message"] = _highlight_message(diagnostic.message, diagnostic.language)
+            row["highlighted_source"] = _highlight_source(diagnostic)
             rows.append(row)
 
-        status_counts = {
-            status: sum(d.status == status for d in self.diagnostics) for status in ("error", "warning", "info")
-        }
+        status_counts = {status: sum(d.severity == status for d in self.diagnostics) for status in Severity}
 
         context = {
             "report": self,
@@ -106,15 +152,18 @@ class Report:
             output.writelines(template.generate(**context))
 
 
-def _highlight_message(message: str, language: str) -> str:
+def _highlight_source(diagnostic: Diagnostic) -> str:
     """Return Pygments HTML. Unknown lexer names safely fall back to plain text."""
+    if diagnostic.severity == Severity.NOTE:
+        return ""
+
     try:
-        lexer = get_lexer_by_name(language or "text")
+        lexer = get_lexer_by_name(diagnostic.language)
     except ClassNotFound:
         lexer = TextLexer()
 
     return highlight(
-        message,
+        diagnostic.source_code(context_lines=3),
         lexer,
-        HtmlFormatter(nowrap=True),
+        HtmlFormatter(nowrap=False, linenos="table", linenostart=diagnostic.extent.start.line, cssclass="source-code"),
     )

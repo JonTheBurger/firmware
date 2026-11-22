@@ -32,11 +32,15 @@ def lint_py(files: Collection[Path]) -> None:
 
     sarif = Ruff.tool().check(files)
     sarif.to_file(lint_dir() / "ruff.sarif")
-    diagnostics.extend(Diagnostic.from_sarif(sarif))
+    for diagnostic in Diagnostic.from_sarif(sarif):
+        diagnostic.language = "python"
+        diagnostics.append(diagnostic)
 
     sarif = Ruff.tool().format_check(files)
     sarif.to_file(lint_dir() / "format.ruff.sarif")
-    diagnostics.extend(Diagnostic.from_sarif(sarif))
+    for diagnostic in Diagnostic.from_sarif(sarif):
+        diagnostic.language = "python"
+        diagnostics.append(diagnostic)
 
     report = Report(
         title="Ruff Linter Results",

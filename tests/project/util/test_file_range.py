@@ -83,3 +83,32 @@ def test_file_pos_from_string() -> None:
     """When parsing a <file>:<line>:<col> with a Windows drive, Then the drive is preserved."""
     assert FilePos.from_str(r"C:\Users\Alice\main.c:3:2") == FilePos(file=r"C:\Users\Alice\main.c", line=3, column=2)
     assert FilePos.from_str(r"C:\Users\Alice\main.c:3") == FilePos(file=r"C:\Users\Alice\main.c", line=3)
+
+
+def test_underline_one_line() -> None:
+    """Ensure the underline format is valid::
+
+    foo bar
+       ^~~~^
+    12345678
+    """
+    extent = FileRange("main.c", (1, 4), (1, 8))
+    assert extent.underline() == "   ^~~~^"
+
+
+def test_underline_with_length() -> None:
+    """When the source string is provided, Then underline truncate to that string's length::
+
+    foo bar
+       ^~~^
+    1234567
+    """
+    extent = FileRange("main.c", (1, 4), 1)
+    assert extent.underline(length=len("foo bar")) == "   ^~~^"
+
+
+def test_underline_empty() -> None:
+    extent = FileRange("main.c", (1, 4), 1)
+    assert extent.underline() == ""
+    extent = FileRange("main.c", (1, 4), (2, 4))
+    assert extent.underline() == ""

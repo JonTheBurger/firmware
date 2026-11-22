@@ -18,7 +18,7 @@
       --accent: #8b9cff;
       --error: #ff667a;
       --warning: #f2b75b;
-      --info: #69b8f5;
+      --note: #69b8f5;
       --success: #62c99a;
       --radius: 10px;
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -71,8 +71,11 @@
       gap: 12px; padding: 12px;
     }
     .left-pane {
-      min-width: 0; min-height: 0; display: grid;
-      grid-template-rows: minmax(0, 1fr) minmax(0, 1fr); gap: 12px;
+        min-width: 0;
+        min-height: 0;
+        display: grid;
+        grid-template-rows: minmax(120px, 1fr) 8px minmax(120px, 1fr);
+        gap: 0;
     }
     .panel {
       min-width: 0; min-height: 0; background: var(--panel);
@@ -85,6 +88,31 @@
     }
     .panel-title { font-size: 12px; font-weight: 650; letter-spacing: .025em; }
     .panel-meta { color: var(--muted); font-size: 11px; }
+    .resize-handle {
+        height: 8px;
+        cursor: row-resize;
+        touch-action: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        outline: none;
+    }
+    .resize-handle::after {
+        content: "";
+        width: 36px;
+        height: 3px;
+        border-radius: 3px;
+        background: var(--border);
+        transition: background 0.15s ease, width 0.15s ease;
+    }
+    .resize-handle:hover::after,
+    .resize-handle:focus-visible::after {
+        background: var(--accent);
+        width: 52px;
+    }
+    .resize-handle:active::after {
+        background: var(--accent);
+    }
     .search-wrap { padding: 10px 12px; border-bottom: 1px solid var(--border); }
     .search {
       width: 100%; height: 34px; padding: 0 11px; border-radius: 7px;
@@ -118,7 +146,7 @@
     }
     .status.error { color: var(--error); background: #ff667a12; }
     .status.warning { color: var(--warning); background: #f2b75b12; }
-    .status.info { color: var(--info); background: #69b8f512; }
+    .status.note { color: var(--note); background: #69b8f512; }
     .file-cell { color: #aab7ca; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; }
     .message-cell { color: #d6deea; }
     .empty-state { padding: 28px; color: var(--muted); text-align: center; }
@@ -134,7 +162,7 @@
       margin: 0; padding: 14px 16px; overflow: auto; border: 1px solid #293448;
       border-radius: 8px; background: #0b1018; color: #d8dee9;
       font: 12px/1.7 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      tab-size: 4; white-space: pre;
+      tab-size: 4;
     }
     .code-block .hll { background: #39445a; display: block; }
     {{ pygments_css|safe }}
@@ -148,7 +176,7 @@
       background: conic-gradient(
         var(--error) 0 var(--error-end),
         var(--warning) var(--error-end) var(--warning-end),
-        var(--info) var(--warning-end) 100%
+        var(--note) var(--warning-end) 100%
       );
       position: relative; display: grid; place-items: center;
     }
@@ -160,7 +188,7 @@
     .legend-item { display: flex; align-items: center; justify-content: space-between; gap: 12px; color: var(--muted); font-size: 11px; }
     .legend-name { display: flex; align-items: center; gap: 7px; }
     .dot { width: 7px; height: 7px; border-radius: 50%; }
-    .dot.error { background: var(--error); } .dot.warning { background: var(--warning); } .dot.info { background: var(--info); }
+    .dot.error { background: var(--error); } .dot.warning { background: var(--warning); } .dot.note { background: var(--note); }
     .legend-value { color: var(--text); font-variant-numeric: tabular-nums; }
 
     .info-panel { min-height: 0; flex: 1; }
@@ -175,6 +203,81 @@
     .info-heading { font-size: 11px; font-weight: 650; margin: 1px 0 4px; }
     .info-message { color: var(--muted); font-size: 11px; line-height: 1.5; overflow-wrap: anywhere; }
     .muted-empty { color: var(--subtle); font-size: 11px; padding: 12px 0; }
+    .inline-code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.92em;
+      padding: 0.1em 0.35em;
+      border-radius: 4px;
+      background: #1a2232;
+      color: #e6edf5;
+    }
+
+    .detail-content {
+      min-height: 0;
+      flex: 1;
+      overflow: auto;
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+    }
+    .diagnostic-detail {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+    }
+    .empty-source-state {
+      flex: 1;
+      min-height: 110px;
+      display: grid;
+      place-items: center;
+      pointer-events: none;
+      user-select: none;
+    }
+    .empty-source-icon {
+      width: 56px;
+      height: 56px;
+      color: #36445c;
+      opacity: 0.7;
+      filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.55));
+    }
+
+    .source-code > table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: auto;
+    }
+    .source-code > table > tbody > tr > td {
+      padding: 0;
+      border-bottom: 0;
+      vertical-align: top;
+      white-space: normal;
+      overflow: visible;
+    }
+    .source-code .linenos {
+      width: 1%;
+      padding-right: 1rem;
+      text-align: right;
+      color: var(--muted);
+      user-select: none;
+    }
+    .source-code .code {
+      width: 99%;
+    }
+    .source-code pre {
+      margin: 0;
+      overflow-x: auto;
+      white-space: pre;
+    }
+    .markdown-body {
+      padding: 1rem;
+      border-bottom: 1px solid var(--border);
+      overflow: auto;
+      margin-bottom: 12px;
+    }
+    .markdown-body pre {
+      overflow-x: auto;
+    }
 
     @media (max-width: 900px) {
       body { overflow: auto; }
@@ -229,25 +332,27 @@
         </div>
         <div class="search-wrap">
           <input class="search" id="diagnostic-search" type="search"
-                 placeholder="Filter by status, tool, file, or message…" autocomplete="off">
+                 placeholder="Filter by status, tool, file, or message..." autocomplete="off">
         </div>
         <div class="table-scroll">
           <table>
             <thead>
               <tr>
-                <th class="col-status">Status</th>
-                <th class="col-tool">Tool</th>
-                <th class="col-file">File</th>
+                <th class="col-status" data-sort="severity">Status</th>
+                <th class="col-tool" data-sort="tool">Tool</th>
+                <th class="col-file" data-sort="message">File</th>
                 <th>Message</th>
               </tr>
             </thead>
             <tbody id="diagnostic-rows">
               {% for d in diagnostics %}
-              <tr data-index="{{ loop.index0 }}" data-search="{{ (d.status ~ ' ' ~ d.tool ~ ' ' ~ d.file ~ ' ' ~ d.message)|lower|e }}"
+              {% set file_path = d.extent.file if d.extent else "" %}
+              {% set line_no = d.line if d.line is defined and d.line else (d.extent.start.line if d.extent and d.extent.start and d.extent.start.line else none) %}
+              <tr data-index="{{ loop.index0 }}" data-search="{{ (d.severity ~ ' ' ~ d.tool ~ ' ' ~ file_path ~ ' ' ~ d.message)|lower|e }}"
                   {% if loop.first %}class="selected"{% endif %}>
-                <td><span class="status {{ d.status }}">{{ d.status }}</span></td>
+                <td><span class="status {{ d.severity }}">{{ d.severity }}</span></td>
                 <td>{{ d.tool }}</td>
-                <td class="file-cell" title="{{ d.file }}">{{ d.file }}{% if d.line %}:{{ d.line }}{% endif %}</td>
+                <td class="file-cell" title="{{ file_path }}">{{ file_path }}{% if line_no %}:{{ line_no }}{% endif %}</td>
                 <td class="message-cell" title="{{ d.message }}">{{ d.message|truncate(150) }}</td>
               </tr>
               {% else %}
@@ -259,21 +364,25 @@
         </div>
       </section>
 
+      <div
+          class="resize-handle"
+          id="diagnostics-resizer"
+          role="separator"
+          aria-label="Resize diagnostics panels"
+          aria-orientation="horizontal"
+          aria-valuemin="120"
+          aria-valuenow="50"
+          aria-valuemax="90"
+          tabindex="0"
+      ></div>
+
       <section class="panel">
         <div class="panel-header">
           <div class="panel-title">Diagnostic detail</div>
           <div class="panel-meta" id="detail-tool">Select a result</div>
         </div>
         <div class="detail-content" id="detail-content">
-          {% if diagnostics %}
-          <div class="detail-meta">
-            <span class="status {{ diagnostics[0].status }}">{{ diagnostics[0].status }}</span>
-            <span class="detail-path">{{ diagnostics[0].file }}{% if diagnostics[0].line %}:{{ diagnostics[0].line }}{% endif %}</span>
-          </div>
-          <pre class="code-block"><code>{{ diagnostics[0].highlighted_message|safe }}</code></pre>
-          {% else %}
           <div class="detail-placeholder">No diagnostics to display.</div>
-          {% endif %}
         </div>
       </section>
     </section>
@@ -281,7 +390,7 @@
     <aside class="right-pane" aria-label="Report summary">
       {% set errors = status_counts.error %}
       {% set warnings = status_counts.warning %}
-      {% set infos = status_counts.info %}
+      {% set notes = status_counts.note %}
       {% set denominator = total if total else 1 %}
       {% set error_end = errors / denominator * 100 %}
       {% set warning_end = (errors + warnings) / denominator * 100 %}
@@ -297,7 +406,7 @@
           <div class="legend">
             <div class="legend-item"><span class="legend-name"><i class="dot error"></i>Error</span><b class="legend-value">{{ errors }}</b></div>
             <div class="legend-item"><span class="legend-name"><i class="dot warning"></i>Warning</span><b class="legend-value">{{ warnings }}</b></div>
-            <div class="legend-item"><span class="legend-name"><i class="dot info"></i>Info</span><b class="legend-value">{{ infos }}</b></div>
+            <div class="legend-item"><span class="legend-name"><i class="dot note"></i>Note</span><b class="legend-value">{{ notes }}</b></div>
           </div>
         </div>
       </section>
@@ -336,17 +445,79 @@
   function selectDiagnostic(index) {
     const d = diagnostics[index];
     if (!d) return;
-    rows.forEach(row => row.classList.toggle("selected", Number(row.dataset.index) === index));
-    const location = `${escapeHtml(d.file || "")}${d.line ? ":" + d.line : ""}`;
+
+    rows.forEach((row) =>
+      row.classList.toggle("selected", Number(row.dataset.index) === index)
+    );
+
+    const rawLine = d.line ?? d.extent?.start?.line;
+    const file = escapeHtml(d.file || "");
+    const line = rawLine != null ? `:${escapeHtml(String(rawLine))}` : "";
+    const location = `${file}${line}`;
+    const severity = escapeHtml(d.severity || "");
+
     detailTool.textContent = d.tool || "";
-    // highlighted_message is generated by Pygments, which HTML-escapes the source text.
+
+const tbody = document.getElementById("diagnostic-rows");
+let sortKey = null;
+let sortAsc = true;
+
+const severityRank = { error: 0, warning: 1, note: 2 };
+
+function compareDiagnostics(a, b) {
+  let av, bv;
+  if (sortKey === "severity") {
+    av = severityRank[a.severity] ?? 99;
+    bv = severityRank[b.severity] ?? 99;
+    return sortAsc ? av - bv : bv - av;
+  }
+  if (sortKey === "file") {
+    av = `${a.extent?.file || ""}:${a.line ?? a.extent?.start?.line ?? 0}`;
+    bv = `${b.extent?.file || ""}:${b.line ?? b.extent?.start?.line ?? 0}`;
+  } else {
+    av = String(a[sortKey] || "");
+    bv = String(b[sortKey] || "");
+  }
+  return sortAsc ? av.localeCompare(bv) : bv.localeCompare(av);
+}
+
+document.querySelectorAll("th[data-sort]").forEach((th) => {
+  th.style.cursor = "pointer";
+  th.addEventListener("click", () => {
+    const key = th.dataset.sort;
+    sortAsc = sortKey === key ? !sortAsc : true;
+    sortKey = key;
+
+    rows.sort((rowA, rowB) =>
+      compareDiagnostics(
+        diagnostics[Number(rowA.dataset.index)],
+        diagnostics[Number(rowB.dataset.index)]
+      )
+    );
+    tbody.append(...rows);
+  });
+});
+
+    const hasSource = Boolean(d.highlighted_source && d.highlighted_source.trim());
+    const sourceSection = hasSource
+      ? `<div class="code-block">${d.highlighted_source}</div>`
+      : `<div class="empty-source-state" aria-label="No source snippet available">
+           <svg class="empty-source-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+             <circle cx="12" cy="12" r="9.5" stroke="currentColor" stroke-width="1.6"/>
+             <path d="M8.5 12.2l2.3 2.3 4.7-4.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+           </svg>
+         </div>`;
+
     detail.innerHTML = `
       <div class="detail-meta">
-        <span class="status ${escapeHtml(d.status)}">${escapeHtml(d.status)}</span>
+        <span class="status ${severity}">${severity}</span>
         <span class="detail-path">${location}</span>
         <span class="panel-meta">${escapeHtml(d.language || "text")}</span>
       </div>
-      <pre class="code-block"><code>${d.highlighted_message}</code></pre>`;
+      <div class="diagnostic-detail">
+        <div class="diagnostic-message markdown-body">${formatInlineCode(d.message)}</div>
+        ${sourceSection}
+      </div>`;
   }
 
   function escapeHtml(value) {
@@ -375,6 +546,80 @@
   });
 
   if (diagnostics.length) selectDiagnostic(0);
+
+  const leftPane = document.querySelector(".left-pane");
+  const resizer = document.getElementById("diagnostics-resizer");
+
+  const MIN_HEIGHT = 120;
+
+  function resizePanels(clientY) {
+      const bounds = leftPane.getBoundingClientRect();
+      const available = bounds.height - resizer.offsetHeight;
+
+      const topHeight = Math.max(
+          MIN_HEIGHT,
+          Math.min(available - MIN_HEIGHT, clientY - bounds.top)
+      );
+
+      const bottomHeight = available - topHeight;
+
+      leftPane.style.gridTemplateRows =
+          `${topHeight}px 8px ${bottomHeight}px`;
+
+      resizer.setAttribute(
+          "aria-valuenow",
+          Math.round(topHeight / available * 100)
+      );
+  }
+
+  resizer.addEventListener("pointerdown", event => {
+      event.preventDefault();
+      resizer.setPointerCapture(event.pointerId);
+      resizePanels(event.clientY);
+  });
+
+  resizer.addEventListener("pointermove", event => {
+      if (resizer.hasPointerCapture(event.pointerId)) {
+          resizePanels(event.clientY);
+      }
+  });
+
+  resizer.addEventListener("keydown", event => {
+      if (event.key !== "ArrowUp" && event.key !== "ArrowDown") {
+          return;
+      }
+
+      event.preventDefault();
+
+      const bounds = leftPane.getBoundingClientRect();
+      const currentHeight = leftPane.querySelector(".panel")
+          .getBoundingClientRect().height;
+
+      const adjustment = event.key === "ArrowUp" ? -16 : 16;
+
+      resizePanels(
+          bounds.top + currentHeight + adjustment
+      );
+  });
+
+  document.querySelectorAll("#diagnostic-rows tr[data-index]").forEach((row) => {
+    const d = diagnostics[Number(row.dataset.index)];
+    const cell = row.querySelector(".message-cell");
+    if (!d || !cell) return;
+    const text = d.message.length > 150 ? d.message.slice(0, 147) + "..." : d.message;
+    cell.innerHTML = formatInlineCode(text);
+  });
+  function formatInlineCode(text) {
+    const parts = String(text ?? "").split(/(`[^`]+`)/g);
+    return parts
+      .map((part) => {
+        if (part.startsWith("`") && part.endsWith("`") && part.length >= 2) {
+          return `<code class="inline-code">${escapeHtml(part.slice(1, -1))}</code>`;
+        }
+        return escapeHtml(part);
+      })
+      .join("");
+  }
 })();
 </script>
 </body>

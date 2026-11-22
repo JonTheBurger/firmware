@@ -53,11 +53,11 @@ class LineCol(BaseModel):
             column: Column number, starting at 1, when ``line`` is supplied. ``0`` means the whole line (default).
         """
         if isinstance(line, LineCol):
-            super().__init__(line=line.line, column=line.column, **kwargs)
+            super().__init__(line=max(line.line, 1), column=max(line.column, 0), **kwargs)
         elif isinstance(line, tuple):
-            super().__init__(line=line[0], column=line[1], **kwargs)
+            super().__init__(line=max(line[0], 1), column=max(line[1], 0), **kwargs)
         else:
-            super().__init__(line=line, column=column, **kwargs)
+            super().__init__(line=max(line, 1), column=max(column, 0), **kwargs)
 
     def __str__(self) -> str:
         """Format of ``<line>:<column>`` (column omitted if 0)."""
@@ -126,6 +126,28 @@ class FileRange(BaseModel):
         if self.finish <= self.start:
             return f"{self.file}:{self.start}"
         return f"{self.file}:{self.start}-{self.finish}"
+
+    def expand_lines(self, context: int) -> Self:
+        """Create a new range with N dditional lines above and below the current file range."""
+        start = LineCol(self.start.line - context, 0)
+        finish = LineCol(self.finish.line + context, 0)
+        return type(self)(self.file, start, finish)
+
+    def underline(self, *, length: int = 0) -> str:
+        """Create a ``"^~~~~~^"`` style string for a one-line file range, else empty string.
+
+        Args:
+            length: Length of the string we are annotating. If 0, self.finish.column will be used, if available.
+                If both are 0, an empty string is returned.
+        """
+        finish = length or self.finish.column
+        if self.start.line != self.finish.line or self.start.x is None or finish == 0:
+            return ""
+        string = " " * self.start.x
+        if self.start.column == finish:
+            return string + "^"
+        string += "^" + "~" * (finish - self.start.column - 1) + "^"
+        return string
 
     def read_text(self) -> str:
         """String containing the referenced text. Lines/Columns beyond file bounds are truncated."""
