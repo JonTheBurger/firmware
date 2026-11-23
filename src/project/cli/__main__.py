@@ -38,6 +38,7 @@ def cli_query_files(
 ) -> None:
     """Lookup project files."""
 
+    del ctx
     out = cast("io.TextIOWrapper", sys.stdout)
     if as_json:
         delimiter = "  "
@@ -70,16 +71,19 @@ app.add_typer(query_app)
 
 @app.command(name="fmt", help=fmt.__doc__)
 def cli_fmt(ctx: Context, files: Annotated[list[Path], ProjectPathArgument]) -> None:
+    del ctx
     fmt(files)
 
 
 @app.command(name="fix", help=fix.__doc__)
 def cli_fix(ctx: Context, files: Annotated[list[Path], ProjectPathArgument]) -> None:
+    del ctx
     fix(files)
 
 
 @app.command(name="lint", help=lint.__doc__)
 def cli_lint(ctx: Context, files: Annotated[list[Path], ProjectPathArgument]) -> None:
+    del ctx
     lint(files)
     Path(".artifacts/lint/ruff.format.sarif")
 
@@ -117,7 +121,7 @@ def main() -> None:
                 span.metric.binary_size("application.elf", 100 * byte)
                 app()
             except UserError as error:
-                print(error)
+                sys.stdout.write(str(error) + "\n")
 
 
 if __name__ == "__main__":

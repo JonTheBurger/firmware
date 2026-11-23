@@ -1,10 +1,9 @@
 import logging
 import shutil
 import subprocess
-from collections.abc import Generator
 from contextlib import contextmanager
 from logging import Filter, Handler, Logger, LogRecord
-from typing import Any, Final
+from typing import TYPE_CHECKING, Any, Final
 
 from opentelemetry import metrics, trace
 from opentelemetry._logs import set_logger_provider
@@ -21,6 +20,9 @@ from opentelemetry.sdk.trace.export import BatchSpanProcessor
 
 from project.core.error import user
 from project.core.units import Duration, Memory, byte, ms, s
+
+if TYPE_CHECKING:
+    from collections.abc import Generator
 
 EXPORT_PERIOD: Duration = 500 * ms
 EXPORT_EXIT_WAIT: Duration = 750 * ms

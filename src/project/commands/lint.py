@@ -1,17 +1,14 @@
-from project.format.report import InfoItem
-from project.format.report import Report
-from collections.abc import Collection
 from typing import TYPE_CHECKING
 
 from project.core.dirs import lint_dir
-from project.format.report import Diagnostic
+from project.format.report import Diagnostic, InfoItem, Report
 from project.system.files import FileType
 from project.system.program import execute
 from project.tool.git import Git
 from project.tool.ruff import Ruff
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
+    from collections.abc import Collection, Iterable
     from pathlib import Path
 
 

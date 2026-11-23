@@ -1,9 +1,12 @@
-from collections.abc import Iterable
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 from project.format.sarif import Sarif
 from project.system.program import Program
 from project.tool.git import Git
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+    from pathlib import Path
 
 
 class Gersemi(Program):

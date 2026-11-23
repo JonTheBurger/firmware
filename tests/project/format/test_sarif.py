@@ -1,6 +1,9 @@
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 from project.format.sarif import Sarif
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 def test_sarif(test_data: Path) -> None:

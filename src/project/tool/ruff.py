@@ -1,5 +1,4 @@
 import re
-from collections.abc import Collection
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, ClassVar, Self
 
@@ -11,7 +10,7 @@ from project.format.sarif import (
 from project.system.program import Program
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
+    from collections.abc import Collection, Iterable
     from pathlib import Path
 
 

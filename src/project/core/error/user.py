@@ -2,8 +2,10 @@
 
 from abc import ABC
 from enum import IntEnum
-from pathlib import Path
-from typing import Any, ClassVar
+from typing import TYPE_CHECKING, Any, ClassVar
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 class Code(IntEnum):

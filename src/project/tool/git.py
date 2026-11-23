@@ -6,12 +6,13 @@ from typing import TYPE_CHECKING, Annotated, Any, override
 
 from pydantic import Field
 
-from project.core.units import Duration
 from project.system.program import Program
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
     from subprocess import CompletedProcess
+
+    from project.core.units import Duration
 
 
 class Git(Program):

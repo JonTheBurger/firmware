@@ -1,10 +1,13 @@
-from collections.abc import Generator
 from contextlib import contextmanager
+from typing import TYPE_CHECKING
 
 import project.core.backtrace
 import project.core.logger
 import project.core.metrics
 from project.core.logger import Log
+
+if TYPE_CHECKING:
+    from collections.abc import Generator
 
 
 @contextmanager
