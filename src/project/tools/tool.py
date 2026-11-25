@@ -1,5 +1,8 @@
+import asyncio
+import os
 import shutil
 import time
+from contextlib import AbstractAsyncContextManager, asynccontextmanager
 from functools import cache
 from pathlib import Path
 from subprocess import CompletedProcess, run
@@ -10,15 +13,16 @@ from pydantic import BaseModel
 from project.core.error import user
 from project.core.logger import Log
 from project.core.units import Duration, s
-from project.format.sarif import SarifTool, SarifToolComponent
+from project.formats.sarif import SarifTool, SarifToolComponent
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
+    from asyncio.subprocess import Process
+    from collections.abc import AsyncGenerator, Iterable
 
 logger = Log.get(__name__)
 
 
-class Program(BaseModel):
+class Tool(BaseModel):
     name: str
     path: Path
     version: str
@@ -26,13 +30,18 @@ class Program(BaseModel):
 
     def execute(
         self,
-        args: Iterable[Any] | None,
+        args: Iterable[Any] | None = None,
         *,
         check: bool = True,
         capture: bool = True,
         timeout: Duration | None = None,
     ) -> CompletedProcess[str]:
         return execute(self.path, args, check=check, capture=capture, timeout=timeout)
+
+    def stream(
+        self, args: Iterable[Any] | None = None, *, env: dict[str, str] | None = None
+    ) -> AbstractAsyncContextManager[Process]:
+        return stream(self.path, args, env=env)
 
     def sarif(self) -> SarifTool:
         """Sarif tool section for this program."""
@@ -51,7 +60,7 @@ class Program(BaseModel):
 
 
 @cache
-def find_program(name: str | Path, *, version_command: tuple[str, ...] = ("--version",)) -> Program:
+def find_program(name: str | Path, *, version_command: tuple[str, ...] = ("--version",)) -> Tool:
     path = shutil.which(name)
     if not path:
         raise user.MissingProgramError(program=name)
@@ -62,7 +71,7 @@ def find_program(name: str | Path, *, version_command: tuple[str, ...] = ("--ver
 
     version = run([path, *version_command], capture_output=True, text=True, check=False, timeout=0.5).stdout or ""  # noqa: S603
     # Maybe we should symlink this path in .cache?
-    return Program(name=name, path=path.absolute(), version=version)
+    return Tool(name=name, path=path.absolute(), version=version)
 
 
 def execute(
@@ -103,3 +112,34 @@ def execute(
             bytes_streamed=len(process.stdout or "") + len(process.stderr or ""),
         )
     return process
+
+
+@asynccontextmanager
+async def stream(
+    executable: Path | str, args: Iterable[Any] | None = None, *, env: dict[str, str] | None = None
+) -> AsyncGenerator[Process]:
+    program = find_program(executable)
+    args = [str(a) for a in args or []]
+    cmd: list[str] = [str(program.path), *args]
+    env = env or {}
+    start_s = time.perf_counter()
+    proc = await asyncio.create_subprocess_exec(
+        *cmd, env={**os.environ, "CLICOLOR_FORCE": "1", "FORCE_COLOR": "1", "PYTHONUNBUFFERED": "1", **env}
+    )
+
+    with logger.span(
+        "program.async", {"path": str(program.path), "version": program.version}, level=Log.NOTICE
+    ) as span:
+        try:
+            yield proc
+        finally:
+            if proc.returncode is None:
+                await proc.wait()
+            print(cmd)
+            duration_s = time.perf_counter() - start_s
+            span.log(
+                span.level,
+                " ".join(args),
+                code=proc.returncode,
+                seconds=duration_s,
+            )

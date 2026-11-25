@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Annotated, Any, override
 
 from pydantic import Field
 
-from project.system.program import Program
+from project.tools.tool import Tool
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -15,7 +15,7 @@ if TYPE_CHECKING:
     from project.core.units import Duration
 
 
-class Git(Program):
+class Git(Tool):
     """For interfacing with the project's git repository."""
 
     cwd: Annotated[Path, Field(description="Current working directory to run git from")] = Path()

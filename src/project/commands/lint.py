@@ -1,11 +1,11 @@
 from typing import TYPE_CHECKING
 
-from project.core.dirs import lint_dir
-from project.format.report import Diagnostic, InfoItem, Report
-from project.system.files import FileType
-from project.system.program import execute
-from project.tool.git import Git
-from project.tool.ruff import Ruff
+from project.core.dirs import lint_stage_dir
+from project.formats.report import Diagnostic, InfoItem, Report
+from project.tools.git import Git
+from project.tools.ruff import Ruff
+from project.tools.tool import execute
+from project.util.file_type import FileType
 
 if TYPE_CHECKING:
     from collections.abc import Collection, Iterable
@@ -28,13 +28,13 @@ def lint_py(files: Collection[Path]) -> None:
     diagnostics: list[Diagnostic] = []
 
     sarif = Ruff.tool().check(files)
-    sarif.to_file(lint_dir() / "ruff.sarif")
+    sarif.to_file(lint_stage_dir() / "ruff.sarif")
     for diagnostic in Diagnostic.from_sarif(sarif):
         diagnostic.language = "python"
         diagnostics.append(diagnostic)
 
     sarif = Ruff.tool().format_check(files)
-    sarif.to_file(lint_dir() / "format.ruff.sarif")
+    sarif.to_file(lint_stage_dir() / "format.ruff.sarif")
     for diagnostic in Diagnostic.from_sarif(sarif):
         diagnostic.language = "python"
         diagnostics.append(diagnostic)

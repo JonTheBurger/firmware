@@ -1,6 +1,6 @@
 import pytest
 
-from project.tool.ruff import Ruff
+from project.tools.ruff import Ruff
 
 
 @pytest.mark.integration

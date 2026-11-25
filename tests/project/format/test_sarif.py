@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from project.format.sarif import Sarif
+from project.formats.sarif import Sarif
 
 if TYPE_CHECKING:
     from pathlib import Path

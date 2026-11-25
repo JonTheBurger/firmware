@@ -1,8 +1,8 @@
 from typing import TYPE_CHECKING
 
 from project.commands.fmt import fmt_cmake, fmt_cxx, fmt_py
-from project.system.files import FileType
-from project.system.program import execute
+from project.tools.tool import execute
+from project.util.file_type import FileType
 
 if TYPE_CHECKING:
     from collections.abc import Iterable

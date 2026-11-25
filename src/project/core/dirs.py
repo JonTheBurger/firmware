@@ -29,8 +29,10 @@ def project_dir() -> Path:
     return Path.cwd()
 
 
-def cache_dir() -> Path:
+def cache_dir(subdir: str = "") -> Path:
     path = project_dir() / ".cache"
+    if subdir:
+        path = path / subdir
     path.mkdir(parents=True, exist_ok=True)
     return path
 
@@ -77,19 +79,25 @@ def stage_dir() -> Path:
     return path
 
 
-def lint_dir() -> Path:
+def build_stage_dir() -> Path:
+    path = artifact_dir() / "build"
+    path.mkdir(parents=True, exist_ok=True)
+    return path
+
+
+def lint_stage_dir() -> Path:
     path = stage_dir() / "lint"
     path.mkdir(parents=True, exist_ok=True)
     return path
 
 
-def test_dir() -> Path:
+def test_stage_dir() -> Path:
     path = stage_dir() / "test"
     path.mkdir(parents=True, exist_ok=True)
     return path
 
 
-def cov_dir() -> Path:
+def cov_stage_dir() -> Path:
     path = stage_dir() / "cov"
     path.mkdir(parents=True, exist_ok=True)
     return path

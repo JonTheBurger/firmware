@@ -4,7 +4,7 @@ from pathlib import Path
 from typer import Argument, Context
 
 from project.commands.query import resolve_files
-from project.system.files import FileType
+from project.util.file_type import FileType
 
 
 def complete_project_paths(_: Context, incomplete: str) -> list[str]:

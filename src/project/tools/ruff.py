@@ -2,12 +2,12 @@ import re
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, ClassVar, Self
 
-from project.format.sarif import (
+from project.formats.sarif import (
     Sarif,
     SarifResult,
     SarifRun,
 )
-from project.system.program import Program
+from project.tools.tool import Tool
 
 if TYPE_CHECKING:
     from collections.abc import Collection, Iterable
@@ -44,7 +44,7 @@ class FixResult:
         )
 
 
-class Ruff(Program):
+class Ruff(Tool):
     uri: ClassVar[str] = "https://github.com/astral-sh/ruff"
 
     # --stdin-filename

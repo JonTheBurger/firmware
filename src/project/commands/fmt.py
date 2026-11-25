@@ -1,9 +1,9 @@
 from typing import TYPE_CHECKING
 
-from project.system.files import FileType
-from project.system.program import execute
-from project.tool.git import Git
-from project.tool.ruff import Ruff
+from project.tools.git import Git
+from project.tools.ruff import Ruff
+from project.tools.tool import execute
+from project.util.file_type import FileType
 
 if TYPE_CHECKING:
     from collections.abc import Iterable

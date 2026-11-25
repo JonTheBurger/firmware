@@ -41,6 +41,7 @@ dev = [
   "pytest-timeout",
   "pytest-coverage",
   "pytest-randomly",
+  # "pytest-testmon",
   "ruff",
   "types-pygments",
   "scalene",

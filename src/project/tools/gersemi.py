@@ -1,20 +1,18 @@
 from typing import TYPE_CHECKING
 
-from project.format.sarif import Sarif
-from project.system.program import Program
-from project.tool.git import Git
+from project.core.dirs import cache_dir
+from project.formats.sarif import Sarif
+from project.tools.tool import Tool
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
     from pathlib import Path
 
 
-class Gersemi(Program):
+class Gersemi(Tool):
     @property
     def cache_dir(self) -> Path:
-        cache_dir = Git.tool().root / ".cache/gersemi"
-        cache_dir.mkdir(parents=True, exist_ok=True)
-        return cache_dir
+        return cache_dir("gersemi")
 
     def format(self, files: Iterable[Path]) -> Sarif | None:
         proc = self.execute(

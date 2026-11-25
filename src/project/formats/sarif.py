@@ -1,3 +1,4 @@
+from typing import Self
 from enum import StrEnum
 from pathlib import Path
 from typing import TYPE_CHECKING, Annotated, Any
@@ -23,6 +24,10 @@ class Sarif(_SarifModel):
     schema_uri: Annotated[str | None, Field(alias="$schema")] = "https://json.schemastore.org/sarif-2.1.0.json"
     version: str = "2.1.0"
     runs: Annotated[list[SarifRun], Field(default_factory=list)]
+
+    @classmethod
+    def from_file(cls, file: StrPath) -> Self:
+        return cls.model_validate_json(Path(file).read_bytes())
 
     def to_file(self, file: StrPath, *, indent: int | None = None) -> Path:
         file = Path(file)

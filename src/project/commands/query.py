@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 
-from project.system.files import FileType
-from project.tool.git import Git
+from project.tools.git import Git
+from project.util.file_type import FileType
 
 if TYPE_CHECKING:
     from collections.abc import Collection, Iterable

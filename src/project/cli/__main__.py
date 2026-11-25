@@ -1,4 +1,5 @@
 # ruff: noqa: TC003 - Typer needs to be able to see all definitions at runtime.
+import asyncio
 import io
 import json
 import sys
@@ -10,6 +11,7 @@ from typer import Context, Option, Typer
 import project.core.backtrace
 import project.core.runtime
 from project.cli.args import ProjectPathArgument
+from project.commands.build import build
 from project.commands.fix import fix
 from project.commands.fmt import fmt
 from project.commands.lint import lint
@@ -17,7 +19,7 @@ from project.core.config import BaseConfig
 from project.core.error.user import UserError
 from project.core.logger import Log
 from project.core.units import byte
-from project.system.files import FileType
+from project.util.file_type import FileType
 
 query_app = Typer(
     name="query",
@@ -86,6 +88,12 @@ def cli_lint(ctx: Context, files: Annotated[list[Path], ProjectPathArgument]) ->
     del ctx
     lint(files)
     Path(".artifacts/lint/ruff.format.sarif")
+
+
+@app.command(name="build", help=build.__doc__)
+def cli_build(ctx: Context) -> None:
+    del ctx
+    asyncio.run(build())
 
 
 def help_for(field: str) -> str:

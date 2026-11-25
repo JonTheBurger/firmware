@@ -1,0 +1,59 @@
+{
+  "$schema": "https://cmake.org/cmake/help/latest/_downloads/3e2d73bff478d88a7de0de736ba5e361/schema.json",
+  "version": 10,
+  "cmakeMinimumRequired": {
+    "major": 4,
+    "minor": 3,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "debug",
+      "binaryDir": "${sourceDir}/.build/${presetName}",
+      "generator": "Ninja",
+      "toolchainFile": "",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "release",
+      "inherits": "debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "stm32f4-debug",
+      "inherits": "debug",
+      "toolchainFile": "${sourceDir}/tools/cmake/toolchain/firmware.cmake"
+    },
+    {
+      "name": "stm32f4-release",
+      "inherits": "release",
+      "toolchainFile": "${sourceDir}/tools/cmake/toolchain/firmware.cmake"
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "debug",
+      "configurePreset": "debug",
+      "configuration": "debug"
+    },
+    {
+      "name": "release",
+      "configurePreset": "release",
+      "configuration": "release"
+    },
+    {
+      "name": "stm32f4-debug",
+      "configurePreset": "stm32f4-debug",
+      "configuration": "debug"
+    },
+    {
+      "name": "stm32f4-release",
+      "configurePreset": "stm32f4-release",
+      "configuration": "release"
+    }
+  ]
+}

@@ -14,7 +14,7 @@ from pygments.lexers import TextLexer, get_lexer_by_name
 from pygments.util import ClassNotFound
 
 from project.core.dirs import html_dir, project_dir
-from project.format.sarif import Sarif, SarifLevel
+from project.formats.sarif import Sarif, SarifLevel
 from project.util.file_range import FileRange
 from project.util.json import JsonEncoder
 from project.util.maybe import maybe
